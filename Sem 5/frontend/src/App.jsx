@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import simguardLogo from './assets/simguard-logo.svg';
 import {
   Shield,
   ShieldCheck,
@@ -215,7 +216,7 @@ Total Blocks Verified: ${data.audit?.total_blocks_checked}`
         {/* Brand */}
         <div className="sg-brand">
           <div className="sg-brand-icon">
-            <ShieldCheck size={22} color="#FFFFFF" strokeWidth={2.5} />
+            <img src={simguardLogo} alt="SIMGUARD Logo" className="sg-brand-logo-img" />
           </div>
           <div className="sg-brand-text">
             <span className="sg-brand-title">SIMGUARD</span>
@@ -283,10 +284,10 @@ Total Blocks Verified: ${data.audit?.total_blocks_checked}`
         <div className="sg-sidebar-bottom">
           <div className="sg-tower-visual">
             <svg viewBox="0 0 120 100" fill="none" className="tower-svg">
-              <path d="M60 20 L40 90 M60 20 L80 90 M46 65 L74 65 M50 48 L70 48 M60 12 L60 20" stroke="#0D9488" strokeWidth="2" strokeLinecap="round" opacity="0.45" />
-              <circle cx="60" cy="12" r="3" fill="#0D9488" opacity="0.8" />
-              <path d="M50 8 A14 14 0 0 1 70 8" stroke="#0D9488" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity="0.5" />
-              <path d="M42 4 A24 24 0 0 1 78 4" stroke="#0D9488" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity="0.3" />
+              <path d="M60 20 L40 90 M60 20 L80 90 M46 65 L74 65 M50 48 L70 48 M60 12 L60 20" stroke="#2563EB" strokeWidth="2" strokeLinecap="round" opacity="0.45" />
+              <circle cx="60" cy="12" r="3" fill="#2563EB" opacity="0.8" />
+              <path d="M50 8 A14 14 0 0 1 70 8" stroke="#2563EB" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity="0.5" />
+              <path d="M42 4 A24 24 0 0 1 78 4" stroke="#2563EB" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity="0.3" />
             </svg>
           </div>
 
@@ -588,7 +589,7 @@ Total Blocks Verified: ${data.audit?.total_blocks_checked}`
                     {/* Box 2: SIMGUARD is ON (Protected) */}
                     <div className={`sg-intercept-box protected ${isProtectedMode ? 'active-highlight' : ''}`}>
                       <div className="sg-intercept-box-header">
-                        <Lock size={14} color="#0D9488" />
+                        <Lock size={14} color="#2563EB" />
                         <span className="sg-intercept-box-title">If SIMGUARD is ON (Protected):</span>
                       </div>
                       <div className="sg-intercept-content ciphertext">
@@ -601,7 +602,7 @@ Total Blocks Verified: ${data.audit?.total_blocks_checked}`
                           title="Copy Ciphertext"
                           onClick={() => copyToClipboard(simResult?.attacker?.intercepted_data || 'bfA0Akf1QArzFOX3KzPYcGWFIFLKVnenVJ...')}
                         >
-                          {copied ? <Check size={13} color="#0D9488" /> : <Copy size={13} />}
+                          {copied ? <Check size={13} color="#2563EB" /> : <Copy size={13} />}
                         </button>
                       </div>
                     </div>
@@ -634,7 +635,7 @@ Total Blocks Verified: ${data.audit?.total_blocks_checked}`
 
                     <div className="sg-verification-box">
                       <div className="sg-verification-header">
-                        <ShieldCheck size={15} color="#0D9488" />
+                        <ShieldCheck size={15} color="#2563EB" />
                         <span>Verification</span>
                       </div>
                       <ul className="sg-verification-list">
@@ -661,7 +662,7 @@ Total Blocks Verified: ${data.audit?.total_blocks_checked}`
               <div className="sg-record-card">
                 <div className="sg-record-header">
                   <div className="sg-record-title-group">
-                    <Layers size={18} color="#0D9488" />
+                    <Layers size={18} color="#2563EB" />
                     <span className="sg-record-title">Blockchain Record (Transaction Logged)</span>
                   </div>
                   <button
@@ -847,7 +848,7 @@ Total Blocks Verified: ${data.audit?.total_blocks_checked}`
             <div className="sg-tab-view">
               <div className="sg-identity-banner">
                 <div className="sg-identity-banner-left">
-                  <Smartphone size={24} color="#0D9488" />
+                  <Smartphone size={24} color="#2563EB" />
                   <div>
                     <h2 className="sg-identity-title">Triple-Factor Device Identity Binding</h2>
                     <p className="sg-identity-sub">
@@ -992,7 +993,7 @@ Total Blocks Verified: ${data.audit?.total_blocks_checked}`
                 <div className="sg-card threat-card">
                   <div className="sg-card-header">
                     <div className="sg-card-title-group">
-                      <CheckCircle2 size={18} color="#0D9488" />
+                      <CheckCircle2 size={18} color="#2563EB" />
                       <span className="sg-card-title">Blockchain Integrity Audit &amp; Tamper Detection</span>
                     </div>
                     <span className="sg-badge-verified">Auditing Tool</span>
@@ -1039,7 +1040,7 @@ Total Blocks Verified: ${data.audit?.total_blocks_checked}`
               <div className="sg-record-card" style={{ marginBottom: '16px' }}>
                 <div className="sg-record-header">
                   <div className="sg-record-title-group">
-                    <BarChart3 size={18} color="#0D9488" />
+                    <BarChart3 size={18} color="#2563EB" />
                     <span className="sg-record-title">System Performance &amp; Cryptographic Latency</span>
                   </div>
                 </div>
@@ -1098,7 +1099,7 @@ Total Blocks Verified: ${data.audit?.total_blocks_checked}`
               <div className="sg-card">
                 <div className="sg-card-header">
                   <div className="sg-card-title-group">
-                    <Settings size={18} color="#0D9488" />
+                    <Settings size={18} color="#2563EB" />
                     <span className="sg-card-title">Cryptographic Node Configuration</span>
                   </div>
                 </div>
