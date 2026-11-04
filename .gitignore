@@ -28,7 +28,14 @@ ehthumbs.db
 [Dd]esktop.ini
 .DS_Store
 
+# Documents (Keep code only on GitHub)
+*.pdf
+*.docx
+*.pptx
+**/report/output/
+
 # Semester 4 (previous semester)
 Sem 4/
+
 
 
