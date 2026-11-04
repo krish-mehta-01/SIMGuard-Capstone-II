@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIMGuard — Presentation & Architecture Cheat-Sheet</title>
+  <link rel="icon" type="image/svg+xml" href="simguard-logo.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090E1A;
+      --card-bg: #0F172A;
+      --border: #1E293B;
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+      --text-dim: #64748B;
+      --cyan: #38BDF8;
+      --indigo: #818CF8;
+      --emerald: #34D399;
+      --amber: #FBBF24;
+      --blue: #60A5FA;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      padding: 32px 28px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1720px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .badge-sub {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 9999px;
+      color: var(--cyan);
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+    }
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #FFFFFF;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      font-size: 15px;
+      color: var(--text-muted);
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    /* 5 Columns Flow */
+    .flow-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+      position: relative;
+    }
+    .flow-card {
+      background: #0E1626;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }
+    .flow-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5);
+    }
+    .flow-card.step-1 { border-color: #334155; }
+    .flow-card.step-2 { border-color: #4F46E5; }
+    .flow-card.step-3 { border-color: #059669; }
+    .flow-card.step-4 { border-color: #D97706; }
+    .flow-card.step-5 { border-color: #0284C7; }
+
+    .step-pill {
+      display: block;
+      text-align: center;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      color: #FFFFFF;
+    }
+    .step-1 .step-pill { background: #334155; }
+    .step-2 .step-pill { background: #4F46E5; }
+    .step-3 .step-pill { background: #059669; }
+    .step-4 .step-pill { background: #D97706; }
+    .step-5 .step-pill { background: #0284C7; }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 14px;
+      text-align: center;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .step-1 .card-title { color: #F1F5F9; }
+    .step-2 .card-title { color: var(--indigo); }
+    .step-3 .card-title { color: var(--emerald); }
+    .step-4 .card-title { color: var(--amber); }
+    .step-5 .card-title { color: var(--cyan); }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin-bottom: 14px;
+      opacity: 0.6;
+    }
+
+    .feature-list {
+      list-style: none;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .bullet-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+    .step-1 .bullet-dot { background: #64748B; }
+    .step-2 .bullet-dot { background: var(--indigo); }
+    .step-3 .bullet-dot { background: var(--emerald); }
+    .step-4 .bullet-dot { background: var(--amber); }
+    .step-5 .bullet-dot { background: var(--cyan); }
+
+    .feature-text strong {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #F8FAFC;
+      margin-bottom: 2px;
+    }
+    .feature-text span {
+      display: block;
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .cue-box {
+      background: #060A14;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      text-align: center;
+      margin-top: auto;
+    }
+    .cue-tag {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--amber);
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .cue-text {
+      font-size: 10.5px;
+      color: #E2E8F0;
+      line-height: 1.35;
+    }
+
+    /* Bottom 4 Recap Cards */
+    .recap-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .recap-card {
+      background: #0E1626;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 18px;
+      position: relative;
+    }
+    .recap-card.rc-1 { border-color: rgba(56, 189, 248, 0.4); }
+    .recap-card.rc-2 { border-color: rgba(52, 211, 153, 0.4); }
+    .recap-card.rc-3 { border-color: rgba(251, 191, 36, 0.4); }
+    .recap-card.rc-4 { border-color: rgba(129, 140, 248, 0.4); }
+
+    .recap-badge {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #FFFFFF;
+      margin-bottom: 6px;
+    }
+    .rc-1 .recap-badge { background: #0369A1; }
+    .rc-2 .recap-badge { background: #047857; }
+    .rc-3 .recap-badge { background: #B45309; }
+    .rc-4 .recap-badge { background: #4338CA; }
+
+    .recap-sub {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .recap-points {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .recap-point {
+      font-size: 11.5px;
+      color: #CBD5E1;
+      line-height: 1.45;
+    }
+    .recap-point strong {
+      color: #FFFFFF;
+      font-weight: 600;
+    }
+    .action-bar {
+      margin-top: 24px;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: #2563EB;
+      color: #FFFFFF;
+      border: none;
+    }
+    .btn-primary:hover {
+      background: #1D4ED8;
+    }
+    .btn-secondary {
+      background: #1E293B;
+      color: #F8FAFC;
+      border: 1px solid #334155;
+    }
+    .btn-secondary:hover {
+      background: #334155;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="badge-sub">SIMGuard Presentation Cheat-Sheet</div>
+      <h1>End-to-End System Flow: ECE + CSE + IT</h1>
+      <p class="subtitle">Krish's Rapid Defense Guide &mdash; Walk examiners through the life of a SIM swap request from hardware to blockchain</p>
+    </header>
+
+    <!-- 5 Stages Flow -->
+    <div class="flow-grid">
+      <!-- Step 1 -->
+      <div class="flow-card step-1">
+        <div class="step-pill">Step 1: Request</div>
+        <div class="card-title">Point of Sale<br>Initiation</div>
+        <div class="divider"></div>
+        <ul class="feature-list">
+          <li class="feature-item">
+            <div class="bullet-dot"></div>
+            <div class="feature-text">
+              <strong>Customer Request</strong>
+              <span>Retail store, online portal, or customer service agent</span>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="bullet-dot"></div>
+            <div class="feature-text">
+              <strong>Account History</strong>
+              <span>Account tenure age, prior swap count in 180 days</span>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="bullet-dot"></div>
+            <div class="feature-text">
+              <strong>Request Context</strong>
+              <span>Agent ID, swap hour, channel, IP origin</span>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="bullet-dot"></div>
+            <div class="feature-text">
+              <strong>Attacker Goal</strong>
+              <span>Social engineering or fake ID to hijack phone & 2FA OTPs</span>
+            </div>
+          </li>
+        </ul>
+        <div class="cue-box">
+          <div class="cue-tag">Memory Cue</div>
+          <div class="cue-text">Phone number is the root of digital identity (banking, email, OTPs).</div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="flow-card step-2">
+        <div class="step-pill">Step 2: ECE Edge</div>
+        <div class="card-title">Hardware Telemetry<br>& HMAC Signing</div>
+        <div class="divider"></div>
+        <ul class="feature-list">
+          <li class="feature-item">
+            <div class="bullet-dot"></div>
+            <div class="feature-text">
+              <strong>SIM800L Modem</strong>
+              <span>Physical UART AT commands direct to cellular tower</span>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="bullet-dot"></div>
+            <div class="feature-text">
+              <strong>AT+GSN Command</strong>
+              <span>Extracts true handset IMEI (hardware-bound)</span>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="bullet-dot"></div>
+            <div class="feature-text">
+              <strong>AT+CREG? & AT+CSQ</strong>
+              <span>Tower Cell-ID, Location Area Code (LAC), RSSI</span>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="bullet-dot"></div>
+            <div class="feature-text">
+              <strong>HMAC-SHA256 Key</strong>
+              <span>Cryptographically signs packet with device secret</span>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="bullet-dot"></div>
+            <div class="feature-text">
+              <strong>Freshness & Replay</strong>
+              <span>Nonce cache + 300s timestamp window</span>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="bullet-dot"></div>
+            <div class="feature-text">
+              <strong>Luhn Checksum</strong>
+              <span>Traps procedurally generated fake IMEIs</span>
+            </div>
+          </li>
+        </ul>
+        <div class="cue-box">
+          <div class="cue-tag">Memory Cue</div>
+          <div class="cue-text">Hardware signals that an attacker cannot talk their way out of.</div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="flow-card step-3">
+        <div class="step-pill">Step 3: CSE AI</div>
+        <div class="card-title">XGBoost ML &<br>TreeSHAP Explainer</div>
+        <div class="divider"></div>
+        <ul class="feature-list">
+          <li class="feature-item">
+            <div class="bullet-dot"></div>
+            <div class="feature-text">
+              <strong>16 Feature Vector</strong>
+              <span>Tower distance, device age, old SIM activity</span>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="bullet-dot"></div>
+            <div class="feature-text">
+              <strong>XGBoost Model</strong>
+              <span>Gradient-boosted decision tree ensemble</span>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="bullet-dot"></div>
+            <div class="feature-text">
+              <strong>ROC-AUC 0.948</strong>
+              <span>vs 0.750 industry checklist baseline</span>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="bullet-dot"></div>
+            <div class="feature-text">
+              <strong>TreeSHAP AI</strong>
+              <span>Exact game-theoretic log-odds attribution</span>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="bullet-dot"></div>
+            <div class="feature-text">
+              <strong>Plain-English Reasons</strong>
+              <span>e.g., '+2.75: 50 km from home tower'</span>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="bullet-dot"></div>
+            <div class="feature-text">
+              <strong>Fast Inference</strong>
+              <span>Sub-millisecond (0.4 ms) scoring time</span>
+            </div>
+          </li>
+        </ul>
+        <div class="cue-box">
+          <div class="cue-tag">Memory Cue</div>
+          <div class="cue-text">Turns opaque AI probability scores into human-auditable reasons.</div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="flow-card step-4">
+        <div class="step-pill">Step 4: IT Govern</div>
+        <div class="card-title">FastAPI Risk Engine<br>& 3-Tier Policy</div>
+        <div class="divider"></div>
+        <ul class="feature-list">
+          <li class="feature-item">
+            <div class="bullet-dot"></div>
+            <div class="feature-text">
+              <strong>Deterministic Rules</strong>
+              <span>Hard regulatory safety checks & overrides</span>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="bullet-dot"></div>
+            <div class="feature-text">
+              <strong>Stolen IMEI Blacklist</strong>
+              <span>CRITICAL safety tripwire &rarr; Instant AUTO-BLOCK</span>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="bullet-dot"></div>
+            <div class="feature-text">
+              <strong>Rapid Re-swap Rule</strong>
+              <span>Swapped &lt; 7 days ago &rarr; MANUAL REVIEW</span>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="bullet-dot"></div>
+            <div class="feature-text">
+              <strong>3-Tier Outcomes</strong>
+              <span>Auto-Approve / Manual Review / Auto-Block</span>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="bullet-dot"></div>
+            <div class="feature-text">
+              <strong>Calibrated Capacity</strong>
+              <span>Catches 84.5% fraud within 8% review limit</span>
+            </div>
+          </li>
+        </ul>
+        <div class="cue-box">
+          <div class="cue-tag">Memory Cue</div>
+          <div class="cue-text">Strict rules override ML to guarantee telecom policy compliance.</div>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="flow-card step-5">
+        <div class="step-pill">Step 5: IT Ledger</div>
+        <div class="card-title">Ethereum Blockchain<br>& Verifiable Audit</div>
+        <div class="divider"></div>
+        <ul class="feature-list">
+          <li class="feature-item">
+            <div class="bullet-dot"></div>
+            <div class="feature-text">
+              <strong>Solidity Contract</strong>
+              <span>SIMSwapAuditLog.sol (Append-only)</span>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="bullet-dot"></div>
+            <div class="feature-text">
+              <strong>Zero PII On-Chain</strong>
+              <span>Subscriber pseudonym HMAC-SHA256(phone)</span>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="bullet-dot"></div>
+            <div class="feature-text">
+              <strong>Canonical Hashes</strong>
+              <span>decision_hash + shap_hash (SHA-256)</span>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="bullet-dot"></div>
+            <div class="feature-text">
+              <strong>Insider-Proof</strong>
+              <span>No UPDATE or DELETE in EVM bytecode</span>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="bullet-dot"></div>
+            <div class="feature-text">
+              <strong>Tamper Detection</strong>
+              <span>100% detected (577/577 trials vs 0% SQL)</span>
+            </div>
+          </li>
+        </ul>
+        <div class="cue-box">
+          <div class="cue-tag">Memory Cue</div>
+          <div class="cue-text">Corrupt insiders or rogue DBAs cannot alter or erase audit records.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom 4 Recap Cards -->
+    <div class="recap-grid">
+      <div class="recap-card rc-1">
+        <div class="recap-badge">1. The Core Story</div>
+        <div class="recap-sub">Why SIMGuard exists</div>
+        <ul class="recap-points">
+          <li class="recap-point"><strong>Root of Identity:</strong> Phone numbers guard all 2FA OTPs, bank logins, and identity verification.</li>
+          <li class="recap-point"><strong>Why Checklists Fail:</strong> Retail agents get duped by forged physical IDs and social engineering attacks.</li>
+          <li class="recap-point"><strong>The SIMGuard Fix:</strong> Unites Hardware Telemetry (ECE) + Explainable AI (CSE) + Verifiable Blockchain (IT).</li>
+        </ul>
+      </div>
+
+      <div class="recap-card rc-2">
+        <div class="recap-badge">2. Four Golden Metrics</div>
+        <div class="recap-sub">Numbers to quote examiners</div>
+        <ul class="recap-points">
+          <li class="recap-point"><strong>0.948 ROC-AUC:</strong> XGBoost ML discrimination vs 0.750 legacy rule checklists.</li>
+          <li class="recap-point"><strong>84.5% Fraud Stopped:</strong> Captured within realistic 8% analyst manual review limit.</li>
+          <li class="recap-point"><strong>100% Tamper Catch:</strong> 577/577 attack trials detected on-chain (vs 0% in standard SQL).</li>
+          <li class="recap-point"><strong>21 ms Latency:</strong> Fast end-to-end evaluation per swap request.</li>
+        </ul>
+      </div>
+
+      <div class="recap-card rc-3">
+        <div class="recap-badge">3. Why Blockchain?</div>
+        <div class="recap-sub">The legal & forensic proof</div>
+        <ul class="recap-points">
+          <li class="recap-point"><strong>Inside Threat:</strong> Standard databases (SQL) can be silently modified by corrupt DBAs or bribed agents.</li>
+          <li class="recap-point"><strong>Zero PII On-Chain:</strong> Stores HMAC-SHA256 pseudonym + decision hash + SHAP explanation hash.</li>
+          <li class="recap-point"><strong>No EVM Edit Method:</strong> Smart contract has NO update/delete functions &mdash; permanent legal proof.</li>
+        </ul>
+      </div>
+
+      <div class="recap-card rc-4">
+        <div class="recap-badge">4. Defense & Handover</div>
+        <div class="recap-sub">Presentation closing cue</div>
+        <ul class="recap-points">
+          <li class="recap-point"><strong>Closing Punchline:</strong> &ldquo;SIMGuard provides defense-in-depth across the entire telecom stack.&rdquo;</li>
+          <li class="recap-point"><strong>Handover Phrase:</strong> &ldquo;I will now hand over to Yukesh, who will dive deep into our FastAPI Risk Engine, Solidity Smart Contracts, and Live System Demo.&rdquo;</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <a href="http://127.0.0.1:8051/" class="btn btn-secondary">&larr; Return to SIMGuard Console</a>
+      <a href="/figures/simguard_flow_cheatsheet.png" target="_blank" class="btn btn-primary">&#128269; View Ultra 5K Image (PNG)</a>
+    </div>
+  </div>
+</body>
+</html>
+

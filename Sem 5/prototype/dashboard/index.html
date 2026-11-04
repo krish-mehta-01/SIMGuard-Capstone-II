@@ -3,44 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SIMGuard — Telecom Fraud Operations Platform</title>
+  <title>SIMGUARD — Blockchain-Based Secure Communication System</title>
   <link rel="icon" type="image/svg+xml" href="/static/simguard-logo.svg">
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
   <div class="app-shell">
-    <!-- ───────── Sidebar ───────── -->
+    <!-- ───────── Clean Sidebar ───────── -->
     <aside class="app-sidebar">
       <div class="sidebar-brand">
-        <img class="brand-logo-img" src="/static/simguard-logo.svg" width="32" height="32" alt="SIMGuard Logo">
+        <img class="brand-logo-img" src="/static/simguard-logo.svg" width="32" height="32" alt="SIMGUARD Logo">
         <div class="brand-info">
-          <span class="brand-title">SIMGuard</span>
-          <span class="brand-subtitle">Fraud Intelligence</span>
+          <span class="brand-title">SIMGUARD</span>
+          <span class="brand-subtitle">Secure Communication</span>
         </div>
       </div>
 
       <nav class="sidebar-nav" role="tablist">
-        <span class="nav-section-title">Operations</span>
-        <button class="nav-item tab active" data-tab="evaluate" role="tab" id="nav-evaluate">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+        <span class="nav-section-title">Navigation</span>
+        
+        <button class="nav-item tab active" data-tab="simulator" role="tab" id="nav-simulator">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <polyline points="9 12 11 14 15 10"/>
           </svg>
-          <span>Evaluate Request</span>
+          <span>Live Simulator</span>
         </button>
 
-        <button class="nav-item tab" data-tab="log" role="tab" id="nav-log">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-            <line x1="16" y1="13" x2="8" y2="13"/>
-            <line x1="16" y1="17" x2="8" y2="17"/>
-          </svg>
-          <span>Decision Log</span>
-        </button>
-
-        <button class="nav-item tab" data-tab="ledger" role="tab" id="nav-ledger">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button class="nav-item tab" data-tab="ledger-v2" role="tab" id="nav-ledger-v2">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
             <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
             <line x1="6" y1="6" x2="6.01" y2="6"/>
@@ -49,35 +40,24 @@
           <span>Blockchain Ledger</span>
         </button>
 
-        <button class="nav-item tab" data-tab="audit" role="tab" id="nav-audit">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            <line x1="12" y1="8" x2="12" y2="12"/>
-            <line x1="12" y1="16" x2="12.01" y2="16"/>
+        <button class="nav-item tab" data-tab="defense" role="tab" id="nav-defense">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
           </svg>
-          <span>Integrity Audit</span>
-        </button>
-
-        <button class="nav-item tab" data-tab="model" role="tab" id="nav-model">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="18" y1="20" x2="18" y2="10"/>
-            <line x1="12" y1="20" x2="12" y2="4"/>
-            <line x1="6" y1="20" x2="6" y2="14"/>
-          </svg>
-          <span>Model Performance</span>
+          <span>Threat Defense &amp; Audit</span>
         </button>
       </nav>
 
       <div class="sidebar-footer">
         <div class="system-health-badge">
-          <span style="color:var(--text-secondary);">Consensus Status</span>
-          <span class="status"><i class="pulse-dot"></i> Synchronized</span>
+          <span style="color:var(--text-secondary);">Consensus</span>
+          <span class="status" id="sidebarChainStatus"><i class="pulse-dot"></i> Synchronized</span>
         </div>
         <div class="user-profile">
-          <div class="user-avatar">AN</div>
+          <div class="user-avatar">SG</div>
           <div class="user-details">
-            <span class="user-name">Fraud Operations</span>
-            <span class="user-role">Analyst ID: ANL-007</span>
+            <span class="user-name">SIMGUARD Core</span>
+            <span class="user-role">Ed25519 · SHA-256</span>
           </div>
         </div>
       </div>
@@ -85,271 +65,314 @@
 
     <!-- ───────── Main Content Area ───────── -->
     <div class="app-main">
-      <!-- Top Navigation Header -->
       <header class="app-header">
         <div class="header-left">
           <div class="breadcrumbs">
-            <span>SIMGuard</span>
+            <span>SIMGUARD</span>
             <span class="sep">/</span>
-            <span class="current" id="breadcrumbCurrent">Evaluate Request</span>
+            <span class="current" id="breadcrumbCurrent">Live Simulator</span>
           </div>
         </div>
 
         <div class="header-status-group">
-          <span class="chip" id="chipChain"><i class="dot"></i><span>Connecting…</span></span>
-          <span class="chip" id="chipModel"><span>Model …</span></span>
+          <span class="chip" id="chipChain"><i class="dot"></i><span>Ledger: Active</span></span>
+          <span class="chip" id="chipBlocks"><span>Blocks: 4</span></span>
         </div>
       </header>
 
       <!-- Content Panels -->
       <main class="app-content">
-        <!-- ───────── 1. Evaluate Request Panel ───────── -->
-        <section id="tab-evaluate" class="panel active">
-          <!-- Scenario Selection -->
-          <div class="scenario-row" id="scenarioRow"></div>
 
-          <!-- 3-Column Grid -->
-          <div class="grid3">
-            <!-- Left Column: Request & Edge Telemetry -->
-            <article class="card" id="cardRequest">
+        <!-- ═══════════════════════════════════════════════════════════════
+             TAB 1: LIVE SIMULATOR (ALICE -> ATTACKER -> BOB)
+             ═══════════════════════════════════════════════════════════════ -->
+        <section id="tab-simulator" class="panel active">
+          <!-- Mode Toggle Banner -->
+          <div class="sim-mode-banner">
+            <div>
               <h2>
-                <span>SIM Replacement Request</span>
-                <span class="hint">Inbound</span>
+                <svg class="icon icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  <polyline points="9 12 11 14 15 10"/>
+                </svg>
+                Communication Interception Demonstration
               </h2>
-              <div class="empty" id="reqEmpty">Select a scenario above to load request data.</div>
-              <div id="reqBody" hidden>
-                <dl class="kv" id="reqKv"></dl>
-                <h3>Signed Edge Telemetry <span class="tag ok" id="telTag">HMAC Verified</span></h3>
-                <dl class="kv" id="telKv"></dl>
-              </div>
-            </article>
+              <p>Compare legacy unencrypted airwaves vs SIMGUARD cryptographic protection.</p>
+            </div>
+            <div class="mode-toggle-wrap">
+              <button class="mode-btn unprotected" id="btnModeUnprotected">
+                <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+                </svg>
+                <span>Legacy GSM (Unprotected)</span>
+              </button>
+              <button class="mode-btn active protected" id="btnModeProtected">
+                <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  <polyline points="9 12 11 14 15 10"/>
+                </svg>
+                <span>SIMGUARD (Protected)</span>
+              </button>
+            </div>
+          </div>
 
-            <!-- Center Column: Decision Centerpiece -->
-            <article class="card" id="cardDecision">
-              <h2>
-                <span>Decision &amp; Risk Scoring</span>
-                <span class="hint">Model + Rules</span>
-              </h2>
-              <div class="empty" id="decEmpty">No request evaluated yet. Select a scenario above to run evaluation.</div>
-              <div id="decBody" hidden>
-                <div class="verdict" id="verdict">
-                  <div class="verdict-icon" id="verdictIcon"></div>
-                  <div class="verdict-text">
-                    <div class="verdict-label" id="verdictLabel"></div>
-                    <div class="verdict-sub" id="verdictSub"></div>
+          <!-- 3-Actor Grid: Device A -> In-Transit Sniffer -> Device B -->
+          <div class="sim-architecture-grid">
+            
+            <!-- ── Device A (Sender) ── -->
+            <article class="phone-mockup">
+              <div class="phone-header">
+                <div class="phone-user-info">
+                  <div class="phone-avatar">A</div>
+                  <div class="phone-meta">
+                    <span class="phone-name">Device A: Alice (Sender)</span>
+                    <span class="phone-device">Pixel 8 Pro · +91 98765 43210</span>
                   </div>
-                  <div class="verdict-score"><span id="verdictScore"></span><small>Risk Score</small></div>
+                </div>
+                <div class="phone-signals">
+                  <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M2 20h.01"/><path d="M7 20v-4"/><path d="M12 20v-8"/><path d="M17 20V4"/>
+                  </svg>
+                  5G-SA
+                </div>
+              </div>
+
+              <div class="phone-body">
+                <label style="font-size:12px;font-weight:600;color:var(--text-secondary);">Message to Send:</label>
+                <textarea id="simMessageText" rows="3" style="width:100%;border-radius:var(--radius-sm);border:1px solid var(--border-default);padding:10px;font-size:13px;resize:none;">Your Bank OTP is 849201. Valid for 5 minutes.</textarea>
+
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                  <button class="btn ghost sm" onclick="setSimMsg('Your Bank OTP is 849201. Valid for 5 minutes.')">Bank OTP</button>
+                  <button class="btn ghost sm" onclick="setSimMsg('CONFIDENTIAL: Wire transfer $50,000 approved to Acct #10928.')">Wire Transfer</button>
+                  <button class="btn ghost sm" onclick="setSimMsg('Server Access Token: tok_live_948201948201948')">Auth Token</button>
                 </div>
 
-                <div class="gauge" id="gauge" aria-label="Risk score scale"></div>
-
-                <div class="parts" id="parts"></div>
-
-                <h3>Why This Decision <span class="hint">TreeSHAP contribution to log-odds</span></h3>
-                <div id="shapBars"></div>
-                <div class="legend">
-                  <span><i class="sw up"></i>Raises fraud risk</span>
-                  <span><i class="sw down"></i>Lowers fraud risk</span>
+                <div class="phone-key-badge" style="margin-top:auto;">
+                  Device Key: <code>ed25519:7c9a41...</code>
                 </div>
-                <p class="summary" id="summary"></p>
+              </div>
+
+              <div class="phone-footer">
+                <button class="btn primary" id="btnTransmitSim" style="width:100%;justify-content:center;gap:8px;">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="22" y1="2" x2="11" y2="13"/>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                  </svg>
+                  <span>Transmit Message</span>
+                </button>
               </div>
             </article>
 
-            <!-- Right Column: Blockchain Anchor & Processing Timeline -->
-            <article class="card" id="cardChain">
-              <h2>
-                <span>Blockchain Verification</span>
-                <span class="hint">On-Chain</span>
-              </h2>
-              <div class="empty" id="chainEmpty">The decision will be anchored to the ledger once evaluated.</div>
-              <div id="chainBody" hidden>
-                <dl class="kv" id="chainKv"></dl>
-                <h3>Processing Timeline <span class="hint" id="totalMs"></span></h3>
-                <div class="stack" id="latBar"></div>
-                <ul class="lat-list" id="latList"></ul>
+            <!-- ── In-Transit Network & Attacker Sniffer ── -->
+            <article class="network-transit-card">
+              <div class="network-pipe-header">
+                <h3>Cellular Radio Interface</h3>
+                <span class="tag ok" id="simProtocolTag">SIMGUARD Cryptographic Engine</span>
+              </div>
+
+              <div class="transit-flow-visual">
+                <div class="flow-step">
+                  <span class="flow-dot blue"></span>
+                  <span>Channel: Cellular Airwave Link (BTS)</span>
+                </div>
+                <div class="flow-step">
+                  <span class="flow-dot green" id="simFlowCipherDot"></span>
+                  <span id="simFlowCipherLabel">Encryption: AES-256-GCM AEAD (Device-Bound)</span>
+                </div>
+                <div class="flow-step">
+                  <span class="flow-dot red"></span>
+                  <span>Adversary: In-Transit Sniffer Active</span>
+                </div>
+              </div>
+
+              <!-- Attacker Terminal -->
+              <div class="attacker-terminal protected" id="attackerTerminal">
+                <div class="attacker-header">
+                  <span style="font-weight:700;font-size:13px;color:var(--text-primary);display:flex;align-items:center;gap:8px;">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="4 17 10 11 4 5"/>
+                      <line x1="12" y1="19" x2="20" y2="19"/>
+                    </svg>
+                    <span>Attacker Sniffer Output</span>
+                  </span>
+                  <span class="attacker-badge protected" id="attackerBadge">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    <span>Zero Data Leakage</span>
+                  </span>
+                </div>
+
+                <div class="attacker-data-box" id="attackerDataBox">
+                  <div style="color:#94A3B8;margin-bottom:4px;">// Intercepted Packet:</div>
+                  <div id="attackerPacketContent">
+                    <span class="highlight-hash">SHA-256 HASH:</span> <span id="attackerHashVal">75e89ac1a50502e2ab4d4aea3cb629f550138dbbf1abdbf00d1ae848be65ef9c</span><br>
+                    <span style="color:#94A3B8;">CIPHERTEXT:</span> <span id="attackerCipherVal">U2FsdGVkX195Y8914kLm9184...</span><br>
+                    <span style="color:#F87171;">DECRYPT ATTEMPT:</span> <span id="attackerDecryptVal">FAILED: Cannot decrypt without Bob's private key</span>
+                  </div>
+                </div>
+
+                <div style="margin-top:10px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:6px;" id="attackerImpactText">
+                  <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <polyline points="9 12 11 14 15 10"/>
+                  </svg>
+                  <span>Confidentiality Preserved: Attacker receives only an uncrackable hash value.</span>
+                </div>
               </div>
             </article>
+
+            <!-- ── Device B (Recipient) ── -->
+            <article class="phone-mockup">
+              <div class="phone-header">
+                <div class="phone-user-info">
+                  <div class="phone-avatar" style="background:#16A34A;">B</div>
+                  <div class="phone-meta">
+                    <span class="phone-name">Device B: Bob (Recipient)</span>
+                    <span class="phone-device">iPhone 15 Pro · +91 98765 11223</span>
+                  </div>
+                </div>
+                <div class="phone-signals">
+                  <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M2 20h.01"/><path d="M7 20v-4"/><path d="M12 20v-8"/><path d="M17 20V4"/>
+                  </svg>
+                  5G-SA
+                </div>
+              </div>
+
+              <div class="phone-body">
+                <label style="font-size:12px;font-weight:600;color:var(--text-secondary);">Decrypted Incoming Message:</label>
+                <div class="message-bubble recipient" id="simRecipientBubble">
+                  <div id="simRecipientText" style="font-size:13.5px;font-weight:500;">
+                    Your Bank OTP is 849201. Valid for 5 minutes.
+                  </div>
+                </div>
+
+                <div class="card" style="padding:12px;background:#F8FAFC;border:1px solid var(--border-default);margin-top:auto;">
+                  <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">
+                    BLOCKCHAIN VERIFICATION PROOF:
+                  </div>
+                  <div style="font-size:11px;font-family:var(--font-mono);display:flex;flex-direction:column;gap:4px;">
+                    <div>Block: <strong id="simProofBlock">#4</strong></div>
+                    <div>Transaction: <span id="simProofTx" style="color:var(--color-primary);">TX-MESSAGE-8A2F</span></div>
+                    <div>Status: <span class="tag ok" id="simProofStatus">Hash Verified</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="phone-footer">
+                <div style="font-size:11.5px;color:var(--text-muted);text-align:center;">
+                  Device-bound keypair verified via SIMGUARD protocol
+                </div>
+              </div>
+            </article>
+
           </div>
           <div class="toast" id="toast" hidden></div>
         </section>
 
-        <!-- ───────── 2. Decision Log Panel ───────── -->
-        <section id="tab-log" class="panel">
+        <!-- ═══════════════════════════════════════════════════════════════
+             TAB 2: BLOCKCHAIN LEDGER
+             ═══════════════════════════════════════════════════════════════ -->
+        <section id="tab-ledger-v2" class="panel">
           <div class="toolbar">
-            <h2>Decision Log <span class="hint" id="logCount"></span></h2>
-            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-              <input type="text" class="search-input" id="logSearch" placeholder="Filter by subscriber, channel, ID..." autocomplete="off">
-              <div class="seg" id="logFilter">
-                <button class="active" data-f="">All</button>
-                <button data-f="AUTO_APPROVE">Approved</button>
-                <button data-f="MANUAL_REVIEW">Review</button>
-                <button data-f="AUTO_BLOCK">Blocked</button>
-              </div>
+            <div>
+              <h2>Immutable Cryptographic Audit Ledger</h2>
+              <p class="muted">Hash-chained blocks storing: REGISTER, MESSAGE, CALL_META, and SECURITY_ALERT transactions.</p>
+            </div>
+            <div class="seg" id="ledgerCategoryFilter">
+              <button class="active" data-cat="ALL">All Categories</button>
+              <button data-cat="REGISTER">REGISTER</button>
+              <button data-cat="MESSAGE">MESSAGE</button>
+              <button data-cat="CALL_META">CALL_META</button>
+              <button data-cat="SECURITY_ALERT">SECURITY_ALERT</button>
             </div>
           </div>
+
+          <div class="stats" id="ledgerStatsV2"></div>
+
           <div class="table-wrap">
-            <table id="logTable">
+            <table id="ledgerTableV2">
               <thead>
                 <tr>
-                  <th>Entry</th>
-                  <th>Time (UTC)</th>
-                  <th>Subscriber</th>
-                  <th>Channel</th>
-                  <th>Decision</th>
-                  <th>Risk</th>
-                  <th>Rules Triggered</th>
-                  <th>Transaction</th>
-                  <th>Action</th>
+                  <th>Block #</th>
+                  <th>Timestamp</th>
+                  <th>Category</th>
+                  <th>Transaction ID</th>
+                  <th>Sender Phone Hash</th>
+                  <th>Payload / Hash Summary</th>
+                  <th>Signature</th>
+                  <th>Block Hash</th>
                 </tr>
               </thead>
-              <tbody></tbody>
+              <tbody id="ledgerV2Tbody"></tbody>
             </table>
           </div>
         </section>
 
-        <!-- ───────── 3. Blockchain Ledger Panel ───────── -->
-        <section id="tab-ledger" class="panel">
+        <!-- ═══════════════════════════════════════════════════════════════
+             TAB 3: THREAT DEFENSE & AUDIT
+             ═══════════════════════════════════════════════════════════════ -->
+        <section id="tab-defense" class="panel">
           <div class="toolbar">
-            <h2>On-Chain Audit Ledger</h2>
+            <div>
+              <h2>Threat Defense &amp; Integrity Audit</h2>
+              <p class="muted">Live test cases demonstrating SIM swap defense and cryptographic audit verification.</p>
+            </div>
+            <button class="btn ghost" id="btnRestoreLedger" onclick="restoreLedger()">
+              <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 4 23 10 17 10"/>
+                <polyline points="1 20 1 14 7 14"/>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+              </svg>
+              <span>Restore Verified Ledger</span>
+            </button>
           </div>
-          <div class="stats" id="ledgerStats"></div>
-          <dl class="kv wide" id="ledgerInfo"></dl>
-          <div class="table-wrap">
-            <table id="ledgerTable">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Block</th>
-                  <th>Subscriber Ref</th>
-                  <th>Decision</th>
-                  <th>Risk</th>
-                  <th>Decision Hash</th>
-                  <th>SHAP Hash</th>
-                  <th>Analyst Outcome</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </section>
 
-        <!-- ───────── 4. Integrity Audit Panel ───────── -->
-        <section id="tab-audit" class="panel">
           <div class="grid2">
-            <article class="card">
-              <h2>Verify Records Against Blockchain</h2>
-              <p class="muted">Recomputes the cryptographic decision hash and SHAP hash of each off-chain record in SQLite and compares them with immutable values anchored in the smart contract.</p>
-              <button class="btn primary" id="btnVerify">Run Integrity Audit</button>
-              <div id="auditResult" class="audit-result"></div>
+            <!-- Test 1: Rogue SIM Swap Attack -->
+            <article class="card" style="border-left: 3px solid #DC2626;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <h3 style="margin:0;font-size:15px;font-weight:700;">Unauthorized Digital SIM Swap Defense</h3>
+                <span class="tag err">Attack Test</span>
+              </div>
+              <p class="muted">An attacker on an unauthorized machine tries to hijack Alice's phone number. Because the attacker's hardware lacks Alice's device key and fingerprint binding, the authentication is rejected and a <code>SECURITY_ALERT</code> transaction is anchored on-chain.</p>
+              
+              <div class="btn-row" style="margin-top:14px;">
+                <button class="btn" style="background:#DC2626;color:#FFF;" onclick="runScenario(2)">Simulate Rogue SIM Swap</button>
+              </div>
             </article>
 
+            <!-- Test 2: Cryptographic Chain Audit & Tamper Detection -->
             <article class="card">
-              <h2>Insider Attack Simulation</h2>
-              <p class="muted">Simulates an insider with database access editing off-chain records. Because blockchain transactions are immutable, the audit immediately flags the discrepancy.</p>
-              <label class="field">Target Record to Alter
-                <select id="tamperTarget"></select>
-              </label>
-              <div class="btn-row">
-                <button class="btn" data-tamper="decision">Change Decision</button>
-                <button class="btn" data-tamper="explanation">Alter Explanation</button>
-                <button class="btn" data-tamper="delete">Delete Record</button>
-                <button class="btn ghost" id="btnRestore">Restore Records</button>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <h3 style="margin:0;font-size:15px;font-weight:700;">Blockchain Integrity Audit &amp; Tamper Detection</h3>
+                <span class="tag ok">Audit Tool</span>
               </div>
-              <div id="tamperResult" class="audit-result"></div>
+              <p class="muted">Recomputes every block's cryptographic hash and Merkle root across all transactions. Demonstrates that any off-chain modification immediately breaks the hash chain.</p>
+              
+              <div class="btn-row" style="margin-top:14px;">
+                <button class="btn primary" onclick="runCryptoAudit()">Run Full Audit</button>
+                <button class="btn" onclick="runScenario(4)">Simulate Block Tamper</button>
+              </div>
             </article>
           </div>
 
-          <article class="card">
-            <h2>Edge Telemetry Attack Simulation</h2>
-            <p class="muted">Submits forged telemetry packets to test cell-site HMAC signatures, nonce deduplication, timestamp replay windows, and device registry validation.</p>
-            <div class="btn-row">
-              <button class="btn" data-edge="tamper_payload">Alter Field In Transit</button>
-              <button class="btn" data-edge="replay">Replay Captured Packet</button>
-              <button class="btn" data-edge="stale">Submit Stale Packet</button>
-              <button class="btn" data-edge="unknown_device">Unregistered Device</button>
+          <!-- Execution Terminal -->
+          <article class="card" style="margin-top:20px;">
+            <h2>Execution &amp; Verification Output</h2>
+            <div id="scenarioTerminal" class="audit-result" style="background:#020617;color:#E2E8F0;font-family:var(--font-mono);font-size:12px;padding:16px;border-radius:var(--radius-sm);max-height:280px;overflow-y:auto;">
+              <span style="color:#64748B;">// Select an action above to view live cryptographic verification...</span>
             </div>
-            <div class="table-wrap slim">
-              <table id="edgeTable">
-                <thead>
-                  <tr>
-                    <th>Attack Vector</th>
-                    <th>Engine Response</th>
-                    <th>Outcome</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
+            <div id="cryptoAuditResult" style="margin-top:10px;"></div>
           </article>
         </section>
 
-        <!-- ───────── 5. Model Performance Panel ───────── -->
-        <section id="tab-model" class="panel">
-          <div class="grid2">
-            <article class="card">
-              <h2>Model Comparison <span class="hint">Held-Out Test Set</span></h2>
-              <div class="table-wrap slim">
-                <table id="modelTable">
-                  <thead>
-                    <tr>
-                      <th>Model Architecture</th>
-                      <th>Precision</th>
-                      <th>Recall</th>
-                      <th>F1 Score</th>
-                      <th>ROC-AUC</th>
-                      <th>PR-AUC</th>
-                    </tr>
-                  </thead>
-                  <tbody></tbody>
-                </table>
-              </div>
-              <p class="muted" id="modelNote" style="margin-top:10px;"></p>
-            </article>
-
-            <article class="card">
-              <h2>Operating Policy &amp; Cost Weights</h2>
-              <dl class="kv" id="policyKv"></dl>
-            </article>
-          </div>
-
-          <div class="grid2">
-            <article class="card">
-              <h2>ROC and Precision–Recall Curves</h2>
-              <img class="fig" src="/figures/roc_pr_curves.png" alt="ROC and precision-recall curves">
-            </article>
-            <article class="card">
-              <h2>Global Feature Importance (TreeSHAP)</h2>
-              <img class="fig" src="/figures/shap_importance.png" alt="SHAP feature importance">
-            </article>
-          </div>
-        </section>
       </main>
     </div>
   </div>
-
-  <!-- ───────── Modal Dialog for Manual Review Resolution ───────── -->
-  <dialog id="resolveDialog">
-    <form method="dialog" id="resolveForm">
-      <h2 style="margin-bottom:8px;font-size:15px;font-weight:600;">Resolve Manual Review</h2>
-      <p class="muted" id="resolveFor" style="margin-bottom:14px;"></p>
-      <label class="field">Final Decision Outcome
-        <select id="resolveDecision">
-          <option value="AUTO_APPROVE">Approve the SIM Swap</option>
-          <option value="AUTO_BLOCK">Block the SIM Swap</option>
-        </select>
-      </label>
-      <label class="field">Fraud Analyst ID
-        <input id="resolveAnalyst" value="ANL-007" autocomplete="off">
-      </label>
-      <label class="field">Operational Justification
-        <textarea id="resolveNote" rows="3" placeholder="e.g. Conducted customer verification callback; request approved."></textarea>
-      </label>
-      <div class="btn-row" style="justify-content:flex-end;margin-top:16px;">
-        <button class="btn ghost" value="cancel" type="button" onclick="document.getElementById('resolveDialog').close()">Cancel</button>
-        <button class="btn primary" id="resolveSubmit" value="ok" type="submit">Record On-Chain</button>
-      </div>
-    </form>
-  </dialog>
 
   <script src="/static/app.js"></script>
 </body>

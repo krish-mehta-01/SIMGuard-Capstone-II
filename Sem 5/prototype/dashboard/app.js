@@ -1,35 +1,21 @@
 /* ==========================================================================
-   SIMGuard Telecom Fraud Intelligence Console
-   Client Application Controller — Restrained, Professional Security UI
-   Maintains all API endpoints, XGBoost inference, TreeSHAP explainability,
-   and Ethereum smart contract anchors.
+   SIMGUARD — Blockchain-Based Secure Communication System
+   Client Application Controller — Streamlined for Live Demonstration
    ========================================================================== */
 "use strict";
 
-const API = "/api/v1";
+const API_V2 = "/api/v2";
+
 const state = {
-  thresholds: { review: 0.13, block: 0.9 },
-  scenario: null,
-  logFilter: "",
-  current: null,
-  allDecisions: [],
-  searchQuery: "",
+  isProtectedMode: true,
+  currentCategory: "ALL",
 };
 
-const DECISION = {
-  AUTO_APPROVE: { cls: "approve", icon: "✓", label: "AUTO APPROVE", sub: "Low risk. Legitimate subscriber replacement." },
-  MANUAL_REVIEW: { cls: "review", icon: "!", label: "MANUAL REVIEW", sub: "Elevated risk. Analyst verification required." },
-  AUTO_BLOCK: { cls: "block", icon: "✕", label: "AUTO BLOCK", sub: "Critical threat detected. Transaction stopped and recorded on-chain." },
+const TAB_LABELS = {
+  simulator: "Live Simulator",
+  "ledger-v2": "Blockchain Ledger",
+  defense: "Threat Defense & Audit",
 };
-
-const LAT_PARTS = [
-  ["telemetry_ms", "Telemetry verification", "#16A34A"],
-  ["ml_shap_ms", "Model + TreeSHAP", "#2563EB"],
-  ["rules_ms", "Rules & Blacklist", "#D97706"],
-  ["hashing_ms", "Cryptographic Hashing", "#6366F1"],
-  ["chain_ms", "Blockchain Anchor", "#DC2626"],
-  ["db_ms", "Database Persistence", "#6B7280"],
-];
 
 // ───────────────────────── Helpers ─────────────────────────
 const $ = (id) => document.getElementById(id);
@@ -50,599 +36,340 @@ function h(tag, attrs = {}, ...kids) {
   return el;
 }
 
-const short = (s, n = 10) => (s ? `${s.slice(0, n)}…${s.slice(-6)}` : "—");
-const pct = (x) => `${(x * 100).toFixed(1)}%`;
-const fmt = (x, d = 2) => Number(x).toFixed(d);
-
-function copyToClipboard(text, label = "Value") {
-  if (!text) return;
-  navigator.clipboard.writeText(text).then(
-    () => toast(`${label} copied to clipboard`),
-    () => toast("Failed to copy", true)
-  );
+function shortHash(str, len = 14) {
+  if (!str) return "—";
+  return str.length > len ? str.slice(0, len) + "…" : str;
 }
 
-function makeCopyable(displayVal, fullVal, label = "Hash") {
-  return h("span", { style: "display:inline-flex;align-items:center;gap:4px;" },
-    h("span", { class: "mono", text: displayVal }),
-    h("button", {
-      class: "copy-btn",
-      title: `Copy full ${label}`,
-      onclick: (e) => { e.stopPropagation(); copyToClipboard(fullVal, label); },
-      html: `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`
-    })
-  );
-}
-
-async function api(path, opts) {
-  const r = await fetch(API + path, opts);
-  const body = await r.json().catch(() => ({}));
-  if (!r.ok) {
-    throw Object.assign(new Error(body.reason || body.detail || r.statusText), { status: r.status, body });
-  }
-  return body;
-}
-
-function toast(msg, err = false) {
+function toast(msg, isErr = false) {
   const t = $("toast");
   if (!t) return;
   t.textContent = msg;
-  t.className = "toast" + (err ? " err" : "");
+  t.className = "toast" + (isErr ? " err" : "");
   t.hidden = false;
-  clearTimeout(toast._t);
-  toast._t = setTimeout(() => { t.hidden = true; }, 3500);
+  setTimeout(() => (t.hidden = true), 3500);
 }
 
-function badge(decision) {
-  const d = DECISION[decision] || { cls: "review", icon: "?", label: decision };
-  const labelClean = d.label.replace("AUTO ", "").replace("MANUAL ", "").toLowerCase().replace(/^./, (c) => c.toUpperCase());
-  return h("span", { class: `badge ${d.cls}` },
-    h("i", { text: d.icon }),
-    labelClean
-  );
-}
-
-function kv(el, rows) {
-  el.replaceChildren();
-  for (const [k, v, mono, fullVal, label] of rows) {
-    let ddContent;
-    if (fullVal) {
-      ddContent = makeCopyable(v, fullVal, label || k);
-    } else {
-      ddContent = v;
-    }
-    el.append(
-      h("dt", { text: k }),
-      h("dd", { class: mono && !fullVal ? "mono" : null }, ddContent)
-    );
+async function apiv2(path, opts = {}) {
+  const res = await fetch(API_V2 + path, opts);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: res.statusText }));
+    throw err;
   }
+  return res.json();
 }
 
-// ───────────────────────── Navigation Tabs ─────────────────────────
-const TAB_LABELS = {
-  evaluate: "Evaluate Request",
-  log: "Decision Log",
-  ledger: "Blockchain Ledger",
-  audit: "Integrity Audit",
-  model: "Model Performance",
-};
-
+// ───────────────────────── Tab Routing ─────────────────────────
 function showTab(name) {
   document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t.dataset.tab === name));
   document.querySelectorAll(".panel").forEach((p) => p.classList.toggle("active", p.id === "tab-" + name));
-  
+
   const breadcrumb = $("breadcrumbCurrent");
   if (breadcrumb && TAB_LABELS[name]) {
     breadcrumb.textContent = TAB_LABELS[name];
   }
 
-  if (name === "log") loadLog();
-  if (name === "ledger") loadLedger();
-  if (name === "audit") loadTargets();
-  if (name === "model") loadModel();
+  if (name === "simulator") loadV2Stats();
+  if (name === "ledger-v2") loadLedgerV2(state.currentCategory);
 }
 
 document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => showTab(t.dataset.tab)));
 
-// ───────────────────────── Header & System Status ─────────────────────────
-async function loadHealth() {
-  try {
-    const hl = await api("/health");
-    state.thresholds = hl.thresholds;
-    const c = $("chipChain");
-    c.className = "chip live";
-    
-    const blockText = `Block #${hl.chain.latest_block}`;
-    const contractShort = short(hl.chain.contract, 6);
-    
-    c.replaceChildren(
-      h("i", { class: "dot" }),
-      h("span", { text: `Ethereum Node · ${blockText} · ` }),
-      makeCopyable(contractShort, hl.chain.contract, "Contract Address")
-    );
+// ═════════════════════════════════════════════════════════════════════
+// 1. LIVE SIMULATOR (ALICE -> ATTACKER -> BOB)
+// ═════════════════════════════════════════════════════════════════════
 
-    $("chipModel").replaceChildren(
-      h("span", { text: `${hl.model_version} · ${hl.blacklist_size} blacklisted IMEIs` })
-    );
-  } catch (e) {
-    const c = $("chipChain");
-    c.className = "chip down";
-    c.replaceChildren(
-      h("i", { class: "dot" }),
-      h("span", { text: "Engine Offline" })
-    );
-  }
+function setSimMsg(txt) {
+  const input = $("simMessageText");
+  if (input) input.value = txt;
 }
 
-// ───────────────────────── Evaluate Request ─────────────────────────
-async function loadScenarios() {
-  const list = await api("/scenarios");
-  const row = $("scenarioRow");
-  row.replaceChildren();
+function initSimulator() {
+  const btnUnprot = $("btnModeUnprotected");
+  const btnProt = $("btnModeProtected");
+  const btnTransmit = $("btnTransmitSim");
 
-  for (const s of list) {
-    const btn = h("button", {
-      class: "scenario",
-      "data-key": s.key,
-      onclick: () => runScenario(s.key),
-    },
-      h("b", { text: s.label }),
-      h("span", { text: s.description })
-    );
-    row.append(btn);
-  }
-}
-
-async function runScenario(key) {
-  document.querySelectorAll(".scenario").forEach((b) => b.classList.toggle("active", b.dataset.key === key));
-  let req;
-  try {
-    req = await api("/scenarios/" + key);
-    renderRequest(req);
-    const res = await api("/evaluate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(req),
+  if (btnUnprot && btnProt) {
+    btnUnprot.addEventListener("click", () => {
+      state.isProtectedMode = false;
+      btnUnprot.classList.add("active");
+      btnProt.classList.remove("active");
+      $("simProtocolTag").textContent = "Legacy Unencrypted GSM Airwaves";
+      $("simProtocolTag").className = "tag err";
+      $("simFlowCipherDot").className = "flow-dot red";
+      $("simFlowCipherLabel").textContent = "Encryption: None (Plaintext Airwave Interception)";
     });
-    state.current = res;
-    renderDecision(res);
-    renderChain(res);
-    loadHealth();
-  } catch (e) {
-    toast("Evaluation failed: " + e.message, true);
+
+    btnProt.addEventListener("click", () => {
+      state.isProtectedMode = true;
+      btnProt.classList.add("active");
+      btnUnprot.classList.remove("active");
+      $("simProtocolTag").textContent = "SIMGUARD Cryptographic Engine";
+      $("simProtocolTag").className = "tag ok";
+      $("simFlowCipherDot").className = "flow-dot green";
+      $("simFlowCipherLabel").textContent = "Encryption: AES-256-GCM AEAD (Device-Bound)";
+    });
+  }
+
+  if (btnTransmit) {
+    btnTransmit.addEventListener("click", runSimulateIntercept);
   }
 }
 
-function renderRequest(req) {
-  $("reqEmpty").hidden = true;
-  $("reqBody").hidden = false;
-  const b = req.bss;
-  const p = req.telemetry.payload;
+async function runSimulateIntercept() {
+  const msg = $("simMessageText") ? $("simMessageText").value.trim() : "Your Bank OTP is 849201";
+  if (!msg) return toast("Please enter a message to transmit.", true);
 
-  kv($("reqKv"), [
-    ["Request ID", short(req.request_id, 12), true, req.request_id, "Request ID"],
-    ["Subscriber", req.msisdn.slice(0, 3) + "•••••" + req.msisdn.slice(-4), true],
-    ["Channel", req.channel.replace("_", " ").toLowerCase()],
-    ["Account age", `${Math.round(b.account_age_days)} days`],
-    ["Current SIM age", `${Math.round(b.sim_age_days)} days`],
-    ["Swaps in 180 days", Math.round(b.swaps_last_180d)],
-    ["Requested at", `${String(b.hour_of_request).padStart(2, "0")}:00${b.is_weekend ? " (Weekend)" : ""}`],
-    ["Biometric KYC", b.kyc_biometric_verified ? "Verified" : "Unverified"],
-    ["Auth failures (7 d)", Math.round(b.auth_failures_7d)],
-    ["Profile changed (7 d)", b.profile_change_7d ? "Yes" : "No"],
-    ["Agent swaps (24 h)", Math.round(b.agent_swaps_24h)],
-  ]);
+  const term = $("attackerTerminal");
+  const badge = $("attackerBadge");
+  const packetBox = $("attackerPacketContent");
+  const impactText = $("attackerImpactText");
+  const recipientText = $("simRecipientText");
+  const proofBlock = $("simProofBlock");
+  const proofTx = $("simProofTx");
+  const proofStatus = $("simProofStatus");
 
-  const env = req.telemetry;
-  kv($("telKv"), [
-    ["Edge device", env.device_id, true],
-    ["New handset IMEI", short(p.imei, 10), true, p.imei, "IMEI"],
-    ["Handset changed", p.imei_changed ? "Yes" : "No"],
-    ["Old SIM last seen", `${p.old_sim_last_seen_min} min ago`],
-    ["Distance from home", `${p.distance_from_home_km} km`],
-    ["Cell changes (24 h)", p.cell_changes_24h],
-    ["Serving cell / RSSI", `${p.cell_id} · ${p.rssi_dbm} dBm`],
-    ["Nonce", short(env.nonce, 8), true, env.nonce, "Nonce"],
-    ["Signature", short(env.signature, 10), true, env.signature, "HMAC Signature"],
-  ]);
-}
-
-function renderGauge(risk) {
-  const g = $("gauge");
-  const t = state.thresholds;
-  g.style.setProperty("--t1", (t.review * 100) + "%");
-  g.style.setProperty("--t2", (t.block * 100) + "%");
-  g.replaceChildren(
-    h("div", { class: "pin", style: `left:${Math.min(Math.max(risk, 0), 1) * 100}%` }),
-    h("div", { class: "tick", style: "left:0", text: "0.0" }),
-    h("div", { class: "tick", style: `left:${t.review * 100}%`, text: `review ≥ ${t.review}` }),
-    h("div", { class: "tick", style: `left:${t.block * 100}%`, text: `block ≥ ${t.block}` }),
-    h("div", { class: "tick", style: "left:100%", text: "1.0" })
-  );
-}
-
-function renderDecision(res) {
-  $("decEmpty").hidden = true;
-  $("decBody").hidden = false;
-  const d = DECISION[res.decision];
-
-  $("verdict").className = "verdict " + d.cls;
-  $("verdictIcon").textContent = d.icon;
-  $("verdictLabel").textContent = d.label;
-  $("verdictSub").textContent = d.sub;
-  $("verdictScore").textContent = fmt(res.risk_score);
-  renderGauge(res.risk_score);
-
-  const parts = $("parts");
-  parts.replaceChildren(
-    h("span", { class: "pill", text: `Model Probability: ${pct(res.ml_probability)}` })
-  );
-
-  if (!res.rule_detail || !res.rule_detail.length) {
-    parts.append(h("span", { class: "pill", text: "No policy rules triggered" }));
-  } else {
-    for (const f of res.rule_detail) {
-      const cls = { CRITICAL: "crit", HIGH: "high", MEDIUM: "med" }[f.severity] || "med";
-      parts.append(
-        h("span", { class: "pill " + cls, title: f.detail, text: `${f.rule} · ${f.severity}` })
-      );
-    }
-  }
-
-  const shap = $("shapBars");
-  shap.replaceChildren();
-  const max = Math.max(...res.reasons.map((r) => Math.abs(r.shap)), 0.01);
-
-  for (const r of res.reasons) {
-    const w = (Math.abs(r.shap) / max) * 48;
-    shap.append(
-      h("div", { class: "shap-row" },
-        h("div", { class: "shap-label", text: r.text }),
-        h("div", { class: "shap-track" },
-          h("div", {
-            class: "shap-bar " + (r.shap > 0 ? "up" : "down"),
-            style: `width:${w}%`,
-            title: `${r.feature}: ${r.shap > 0 ? "+" : ""}${r.shap}`,
-          })
-        ),
-        h("div", {
-          class: "shap-val",
-          style: r.shap > 0 ? "color:var(--shap-up)" : "color:var(--shap-down)",
-          text: (r.shap > 0 ? "+" : "") + fmt(r.shap),
-        })
-      )
-    );
-  }
-
-  $("summary").textContent = res.summary;
-}
-
-function renderChain(res) {
-  $("chainEmpty").hidden = true;
-  $("chainBody").hidden = false;
-
-  kv($("chainKv"), [
-    ["Ledger entry", `#${res.entry_id}`],
-    ["Block number", res.block_number],
-    ["Transaction", short(res.tx_hash, 12), true, res.tx_hash, "Transaction Hash"],
-    ["Gas consumed", Number(res.gas_used).toLocaleString()],
-    ["Decision hash", short(res.decision_hash, 12), true, res.decision_hash, "Decision Hash"],
-    ["SHAP hash", short(res.shap_hash, 12), true, res.shap_hash, "SHAP Hash"],
-    ["Subscriber ref", short(res.subscriber_ref, 12), true, res.subscriber_ref, "Subscriber Reference"],
-    ["Ledger status", "Anchored & Verified On-Chain"],
-  ]);
-
-  const lat = res.latency_ms;
-  $("totalMs").textContent = `${fmt(lat.total_ms, 1)} ms Total`;
-  const total = LAT_PARTS.reduce((s, [k]) => s + (lat[k] || 0), 0);
-
-  $("latBar").replaceChildren(
-    ...LAT_PARTS.map(([k, , c]) =>
-      h("span", {
-        style: `width:${((lat[k] || 0) / (total || 1)) * 100}%;background:${c}`,
-        title: `${k}: ${fmt(lat[k] || 0, 1)} ms`,
-      })
-    )
-  );
-
-  $("latList").replaceChildren(
-    ...LAT_PARTS.map(([k, name, c]) =>
-      h("li", {},
-        h("span", {}, h("i", { style: `background:${c}` }), name),
-        h("b", { text: `${fmt(lat[k] || 0, 1)} ms` })
-      )
-    )
-  );
-}
-
-// ───────────────────────── Decision Log ─────────────────────────
-async function loadLog() {
-  const { total, decisions } = await api(
-    "/decisions?limit=60" + (state.logFilter ? "&decision=" + state.logFilter : "")
-  );
-  state.allDecisions = decisions || [];
-  renderLogTable();
-}
-
-function renderLogTable() {
-  const q = state.searchQuery.toLowerCase().trim();
-  const filtered = state.allDecisions.filter((d) => {
-    if (!q) return true;
-    return (
-      (d.request_id && d.request_id.toLowerCase().includes(q)) ||
-      (d.msisdn_masked && d.msisdn_masked.toLowerCase().includes(q)) ||
-      (d.channel && d.channel.toLowerCase().includes(q)) ||
-      (d.decision && d.decision.toLowerCase().includes(q)) ||
-      (d.tx_hash && d.tx_hash.toLowerCase().includes(q))
-    );
-  });
-
-  $("logCount").textContent = `${filtered.length} of ${state.allDecisions.length} stored`;
-  const tb = document.querySelector("#logTable tbody");
-  tb.replaceChildren();
-
-  if (!filtered.length) {
-    tb.append(
-      h("tr", {},
-        h("td", { colspan: 9, class: "empty", text: q ? "No matching decisions found." : "No decisions recorded yet." })
-      )
-    );
-    return;
-  }
-
-  for (const d of filtered) {
-    const action = d.decision === "MANUAL_REVIEW" && !d.resolution
-      ? h("button", { class: "btn small primary", onclick: () => openResolve(d), text: "Resolve" })
-      : d.resolution
-      ? h("span", { class: "tag ok", text: `Resolved: ${d.resolution.final_decision.replace("AUTO_", "").toLowerCase()}` })
-      : null;
-
-    tb.append(
-      h("tr", {},
-        h("td", { class: "num", text: `#${d.entry_id}` }),
-        h("td", { class: "mono", text: d.timestamp.slice(0, 19).replace("T", " ") }),
-        h("td", { class: "mono", text: d.msisdn_masked }),
-        h("td", { text: d.channel.replace("_", " ").toLowerCase() }),
-        h("td", {}, badge(d.decision)),
-        h("td", { class: "num", text: fmt(d.risk_score) }),
-        h("td", { text: d.rule_flags && d.rule_flags.length ? d.rule_flags.join(", ") : "—" }),
-        h("td", {}, makeCopyable(short(d.tx_hash, 8), d.tx_hash, "Transaction Hash")),
-        h("td", {}, action)
-      )
-    );
-  }
-}
-
-// Log Filter & Search bindings
-document.querySelectorAll("#logFilter button").forEach((b) => {
-  b.addEventListener("click", () => {
-    document.querySelectorAll("#logFilter button").forEach((x) => x.classList.toggle("active", x === b));
-    state.logFilter = b.dataset.f;
-    loadLog();
-  });
-});
-
-const logSearchInput = $("logSearch");
-if (logSearchInput) {
-  logSearchInput.addEventListener("input", (e) => {
-    state.searchQuery = e.target.value;
-    renderLogTable();
-  });
-}
-
-function openResolve(d) {
-  $("resolveFor").textContent = `${d.request_id} · Risk Score ${fmt(d.risk_score)} · ${d.msisdn_masked}`;
-  $("resolveNote").value = "";
-  $("resolveDialog").dataset.rid = d.request_id;
-  $("resolveDialog").showModal();
-}
-
-$("resolveForm").addEventListener("submit", async (ev) => {
-  if (ev.submitter && ev.submitter.value !== "ok") return;
-  const dlg = $("resolveDialog");
   try {
-    const r = await api(`/decisions/${dlg.dataset.rid}/resolve`, {
+    const res = await apiv2("/simulate/intercept", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        final_decision: $("resolveDecision").value,
-        analyst_id: $("resolveAnalyst").value,
-        note: $("resolveNote").value,
+        sender_phone: "+919876543210",
+        recipient_phone: "+919876511223",
+        message: msg,
+        protection_enabled: state.isProtectedMode,
       }),
     });
-    toast(`Resolution recorded on-chain (Block #${r.block_number || "—"})`);
-    dlg.close();
-    loadLog();
+
+    if (!state.isProtectedMode) {
+      // Unprotected Mode
+      term.className = "attacker-terminal compromised";
+      badge.className = "attacker-badge compromised";
+      badge.innerHTML = `
+        <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <span>Compromised / Intercepted</span>
+      `;
+      
+      packetBox.innerHTML = `
+        <div style="color:#94A3B8;">PROTOCOL: Legacy GSM / Unencrypted Airwaves</div>
+        <div style="margin-top:6px;"><span class="highlight-leak">INTERCEPTED CLEARTEXT:</span> <strong style="color:#FCA5A5;">"${res.attacker.intercepted_data}"</strong></div>
+        <div style="margin-top:6px;color:#F87171;">CAN READ PLAINTEXT: YES (100% Leaked)</div>
+      `;
+      impactText.innerHTML = `
+        <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#DC2626;">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <span style="color:#DC2626;">CRITICAL BREACH: Bank OTP or confidential communication intercepted by unauthorized party.</span>
+      `;
+
+      recipientText.textContent = res.recipient.received_content;
+      proofBlock.textContent = "None (Off-chain / Insecure)";
+      proofTx.textContent = "N/A";
+      proofStatus.className = "tag err";
+      proofStatus.textContent = "Unverified Airwave";
+
+      toast("Unprotected: Attacker intercepted plaintext.", true);
+    } else {
+      // SIMGUARD Protected Mode
+      term.className = "attacker-terminal protected";
+      badge.className = "attacker-badge protected";
+      badge.innerHTML = `
+        <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <span>Zero Data Leakage</span>
+      `;
+
+      packetBox.innerHTML = `
+        <div style="margin-bottom:6px;"><span class="highlight-hash">SHA-256 HASH VALUE:</span> <code style="color:#6EE7B7;word-break:break-all;">${res.attacker.intercepted_hash}</code></div>
+        <div style="margin-bottom:6px;color:#94A3B8;">AES-256-GCM CIPHERTEXT: <code style="word-break:break-all;color:#CBD5E1;">${res.attacker.intercepted_data}</code></div>
+        <div style="color:#F87171;">DECRYPTION ATTEMPT: <strong>${res.attacker.decryption_attempt_result}</strong></div>
+      `;
+      impactText.innerHTML = `
+        <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#16A34A;">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <polyline points="9 12 11 14 15 10"/>
+        </svg>
+        <span style="color:#16A34A;">CONFIDENTIALITY PRESERVED: Attacker receives only uncrackable SHA-256 hash value.</span>
+      `;
+
+      recipientText.textContent = res.recipient.decrypted_plaintext;
+      proofBlock.textContent = `#${res.recipient.block_index} (Immutable Hash-Chain)`;
+      proofTx.textContent = res.recipient.tx_id;
+      proofStatus.className = "tag ok";
+      proofStatus.textContent = "Hash & Sig Verified";
+
+      toast("Protected: Transmitted securely & anchored to Block #" + res.recipient.block_index);
+      loadV2Stats();
+    }
+  } catch (err) {
+    toast(err.message || "Simulation error", true);
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// 2. BLOCKCHAIN LEDGER
+// ═════════════════════════════════════════════════════════════════════
+
+async function loadV2Stats() {
+  try {
+    const s = await apiv2("/stats");
+    $("chipBlocks").textContent = `Blocks: ${s.total_blocks}`;
+
+    const statusEl = $("sidebarChainStatus");
+    if (statusEl) {
+      if (s.chain_valid) {
+        statusEl.innerHTML = `<i class="pulse-dot"></i> Synchronized`;
+        statusEl.style.color = "var(--color-success)";
+      } else {
+        statusEl.innerHTML = `<i class="pulse-dot" style="background:#DC2626;"></i> Tamper Alert`;
+        statusEl.style.color = "var(--color-critical)";
+      }
+    }
+
+    const statBox = $("ledgerStatsV2");
+    if (statBox) {
+      statBox.innerHTML = `
+        <div class="stat"><span class="val">${s.total_blocks}</span><span class="lbl">Total Blocks</span></div>
+        <div class="stat"><span class="val">${s.total_transactions}</span><span class="lbl">Transactions</span></div>
+        <div class="stat"><span class="val">${s.transaction_counts.REGISTER || 0}</span><span class="lbl">REGISTER</span></div>
+        <div class="stat"><span class="val">${s.transaction_counts.MESSAGE || 0}</span><span class="lbl">MESSAGE</span></div>
+        <div class="stat"><span class="val">${s.transaction_counts.CALL_META || 0}</span><span class="lbl">CALL_META</span></div>
+        <div class="stat"><span class="val" style="color:${s.transaction_counts.SECURITY_ALERT ? '#DC2626':'inherit'}">${s.transaction_counts.SECURITY_ALERT || 0}</span><span class="lbl">SECURITY ALERTS</span></div>
+      `;
+    }
   } catch (e) {
-    toast(e.message, true);
-  }
-});
-
-// ───────────────────────── Blockchain Ledger ─────────────────────────
-async function loadLedger() {
-  const l = await api("/ledger?limit=20");
-  const s = l.stats;
-
-  $("ledgerStats").replaceChildren(
-    ...[
-      ["Entries on-chain", s.total],
-      ["Auto-approved", s.AUTO_APPROVE],
-      ["Manual review", s.MANUAL_REVIEW],
-      ["Auto-blocked", s.AUTO_BLOCK],
-    ].map(([k, v]) =>
-      h("div", { class: "stat" },
-        h("b", { text: v }),
-        h("span", { text: k })
-      )
-    )
-  );
-
-  kv($("ledgerInfo"), [
-    ["Network", l.info.network],
-    ["Latest block", l.info.latest_block],
-    ["Contract", short(l.info.contract, 10), true, l.info.contract, "Contract Address"],
-    ["Compiler", l.info.compiler.split("+")[0] ? "solc " + l.info.compiler.split("+")[0] : l.info.compiler],
-    ["Engine account", short(l.info.engine_account, 10), true, l.info.engine_account, "Engine Account"],
-    ["Deployment gas", Number(l.info.deploy_gas_used).toLocaleString()],
-  ]);
-
-  const tb = document.querySelector("#ledgerTable tbody");
-  tb.replaceChildren();
-
-  if (!l.entries || !l.entries.length) {
-    tb.append(
-      h("tr", {},
-        h("td", { colspan: 8, class: "empty", text: "Blockchain ledger is empty." })
-      )
-    );
-    return;
-  }
-
-  for (const e of l.entries) {
-    tb.append(
-      h("tr", {},
-        h("td", { class: "num", text: `#${e.entry_id}` }),
-        h("td", { class: "num", text: e.block_number ?? "—" }),
-        h("td", {}, makeCopyable(short(e.subscriber_ref, 8), e.subscriber_ref, "Subscriber Ref")),
-        h("td", {}, badge(e.decision)),
-        h("td", { class: "num", text: fmt(e.risk_score) }),
-        h("td", {}, makeCopyable(short(e.decision_hash, 8), e.decision_hash, "Decision Hash")),
-        h("td", {}, makeCopyable(short(e.shap_hash, 8), e.shap_hash, "SHAP Hash")),
-        h("td", {
-          text: e.resolution
-            ? `${e.resolution.final_decision.replace("AUTO_", "").toLowerCase()} (Analyst ${short(e.resolution.analyst_ref, 4)})`
-            : "—",
-        })
-      )
-    );
+    console.error("V2 stats failed", e);
   }
 }
 
-// ───────────────────────── Integrity Audit ─────────────────────────
-async function loadTargets() {
-  const { decisions } = await api("/decisions?limit=30");
-  const sel = $("tamperTarget");
-  const keep = sel.value;
-  sel.replaceChildren(
-    ...decisions.map((d) =>
-      h("option", {
-        value: d.request_id,
-        text: `#${d.entry_id} · ${d.decision.replace("AUTO_", "").toLowerCase()} · ${d.msisdn_masked}`,
-      })
-    )
-  );
-  if (keep) sel.value = keep;
-}
+async function loadLedgerV2(cat = "ALL") {
+  state.currentCategory = cat;
+  const tbody = $("ledgerV2Tbody");
+  if (!tbody) return;
+  tbody.innerHTML = "<tr><td colspan='8' class='empty'>Loading blockchain blocks...</td></tr>";
 
-function auditBox(a) {
-  const ok = a.integrity_ok;
-  const box = h("div", { class: "result-box " + (ok ? "ok" : "bad") },
-    h("b", { text: ok ? "✓ Cryptographic Integrity Verified" : `⚠ ${a.tampered} Integrity Violation${a.tampered > 1 ? "s" : ""} Detected` }),
-    h("div", { text: `${a.verified} of ${a.on_chain_entries} on-chain records match off-chain preimage (${a.audit_seconds}s).` })
-  );
+  try {
+    const data = await apiv2("/ledger" + (cat !== "ALL" ? `?category=${cat}` : ""));
+    tbody.innerHTML = "";
 
-  if (!ok && a.findings) {
-    box.append(
-      h("ul", {},
-        a.findings.map((f) => h("li", { text: `Entry #${f.entry_id}: ${f.reason}` }))
-      )
-    );
-  }
-  return box;
-}
-
-$("btnVerify").addEventListener("click", async () => {
-  const res = await api("/audit/verify");
-  $("auditResult").replaceChildren(auditBox(res));
-});
-
-document.querySelectorAll("[data-tamper]").forEach((b) => {
-  b.addEventListener("click", async () => {
-    const rid = $("tamperTarget").value;
-    if (!rid) return toast("Evaluate a request first.", true);
-    const t = await api("/demo/tamper", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ request_id: rid, mode: b.dataset.tamper }),
+    data.chain.forEach((block) => {
+      block.transactions.forEach((tx) => {
+        const tr = h("tr", {},
+          h("td", { class: "mono", style: "font-weight:700;", text: `#${block.index}` }),
+          h("td", { class: "muted", style: "font-size:11px;", text: new Date(tx.timestamp * 1000).toLocaleTimeString() }),
+          h("td", {}, h("span", { class: `badge-tx badge-tx-${tx.tx_type}`, text: tx.tx_type })),
+          h("td", { class: "mono", text: tx.tx_id }),
+          h("td", { class: "mono", style: "font-size:11px;", text: shortHash(tx.sender_phone_hash, 16) }),
+          h("td", { style: "font-size:11.5px;max-width:260px;" },
+            tx.tx_type === "REGISTER" ? `Reg: ${tx.payload.device_model || tx.payload.action}` :
+            tx.tx_type === "MESSAGE" ? `Ciphertext: ${shortHash(tx.payload.payload_hash, 18)}` :
+            tx.tx_type === "CALL_META" ? `Call: ${tx.payload.duration_seconds}s (${tx.payload.codec})` :
+            `Security Alert: ${tx.payload.threat_type || 'Takeover Attempt'}`
+          ),
+          h("td", { class: "mono", style: "font-size:11px;", text: shortHash(tx.signature_hex, 16) }),
+          h("td", { class: "mono", style: "font-size:11px;color:var(--text-muted);", text: shortHash(block.block_hash, 14) })
+        );
+        tbody.appendChild(tr);
+      });
     });
-    const a = await api("/audit/verify");
-    $("tamperResult").replaceChildren(
-      h("p", { class: "muted", style: "color:var(--color-warning);font-weight:600;", text: `Insider Action: ${t.change}.` }),
-      auditBox(a)
-    );
-  });
-});
 
-$("btnRestore").addEventListener("click", async () => {
-  await api("/demo/restore", { method: "POST" });
-  const a = await api("/audit/verify");
-  $("tamperResult").replaceChildren(
-    h("p", { class: "muted", style: "color:var(--color-success);font-weight:600;", text: "Database records restored to match blockchain state." }),
-    auditBox(a)
-  );
-  loadTargets();
-});
-
-document.querySelectorAll("[data-edge]").forEach((b) => {
-  b.addEventListener("click", async () => {
-    const r = await api("/demo/edge-attack/" + b.dataset.edge, { method: "POST" });
-    const tb = document.querySelector("#edgeTable tbody");
-    tb.prepend(
-      h("tr", {},
-        h("td", { style: "font-weight:500;", text: r.what }),
-        h("td", { class: "mono", text: r.reason }),
-        h("td", {},
-          h("span", {
-            class: "tag " + (r.accepted ? "bad" : "ok"),
-            text: r.accepted ? "ACCEPTED" : "REJECTED",
-          })
-        )
-      )
-    );
-  });
-});
-
-// ───────────────────────── Model Performance ─────────────────────────
-async function loadModel() {
-  const m = await api("/metrics");
-  const tb = document.querySelector("#modelTable tbody");
-  tb.replaceChildren();
-
-  for (const [name, v] of Object.entries(m.comparison.models)) {
-    const isProposed = name.includes("proposed");
-    tb.append(
-      h("tr", { style: isProposed ? "background:#1A2738;font-weight:600;" : null },
-        h("td", { text: name }),
-        h("td", { class: "num", text: fmt(v.precision, 3) }),
-        h("td", { class: "num", text: fmt(v.recall, 3) }),
-        h("td", { class: "num", text: fmt(v.f1, 3) }),
-        h("td", { class: "num", text: fmt(v.roc_auc, 3) }),
-        h("td", { class: "num", text: fmt(v.pr_auc, 3) })
-      )
-    );
+    loadV2Stats();
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan='8' class='empty'>Error: ${err.message || err}</td></tr>`;
   }
+}
 
-  const sp = m.comparison.split;
-  $("modelNote").textContent = `Test set: ${sp.test} requests (${sp.test_fraud} fraud cases). Policy thresholds fixed on validation set. 5-Fold Cross-Validation ROC-AUC: ${fmt(m.comparison.xgboost_cv.roc_auc_mean, 3)} ± ${fmt(m.comparison.xgboost_cv.roc_auc_std, 3)}.`;
+document.querySelectorAll("#ledgerCategoryFilter button").forEach((b) => {
+  b.addEventListener("click", () => {
+    document.querySelectorAll("#ledgerCategoryFilter button").forEach((x) => x.classList.remove("active"));
+    b.classList.add("active");
+    loadLedgerV2(b.dataset.cat);
+  });
+});
 
-  const p = m.meta.policy;
-  kv($("policyKv"), [
-    ["Model Version", m.meta.model_version],
-    ["Trees", m.meta.n_trees],
-    ["Review Threshold (t_review)", `≥ ${p.t_review}`],
-    ["Block Threshold (t_block)", `≥ ${p.t_block}`],
-    ["Review Capacity", pct(p.review_capacity)],
-    ["Penalty: Missed Fraud", p.cost_weights.missed_fraud],
-    ["Penalty: False Block", p.cost_weights.false_block],
-    ["Cost: Manual Review", p.cost_weights.review],
-  ]);
+// ═════════════════════════════════════════════════════════════════════
+// 3. THREAT DEFENSE & AUDIT
+// ═════════════════════════════════════════════════════════════════════
+
+async function runScenario(scenarioId) {
+  const term = $("scenarioTerminal");
+  term.innerHTML = `<span style="color:#38BDF8;">[RUNNING] Executing security verification test...</span>\n`;
+
+  try {
+    const res = await apiv2(`/scenarios/${scenarioId}`, { method: "POST" });
+    const jsonStr = JSON.stringify(res, null, 2);
+
+    let statusColor = "#4ADE80";
+    if (res.result && (res.result.includes("DEFENDED") || res.result.includes("TAMPER_DETECTED"))) {
+      statusColor = "#F59E0B";
+    }
+
+    term.innerHTML = `
+<span style="color:${statusColor};font-weight:700;">[TEST: ${res.name.toUpperCase()}]</span>
+<span style="color:#94A3B8;">Expected: ${res.expected_outcome}</span>
+<span style="color:#F8FAFC;font-weight:700;">Outcome: ${res.result}</span>
+----------------------------------------------------------------------
+<span style="color:#CBD5E1;">${jsonStr}</span>
+`;
+    toast(`Test executed: ${res.result}`);
+    loadV2Stats();
+  } catch (err) {
+    term.innerHTML = `<span style="color:#F87171;">[ERROR] Test failed: ${err.detail || err.message}</span>`;
+  }
+}
+
+async function runCryptoAudit() {
+  const term = $("scenarioTerminal");
+  term.innerHTML = `<span style="color:#38BDF8;">[AUDITING] Recomputing SHA-256 block hash-chain links and Merkle roots...</span>\n`;
+
+  try {
+    const res = await apiv2("/audit");
+    const jsonStr = JSON.stringify(res, null, 2);
+
+    let statusColor = res.is_valid ? "#4ADE80" : "#EF4444";
+    term.innerHTML = `
+<span style="color:${statusColor};font-weight:700;">[BLOCKCHAIN INTEGRITY AUDIT REPORT]</span>
+<span style="color:#F8FAFC;font-weight:700;">Status: ${res.is_valid ? "100% VALID & INTACT" : "TAMPERING DETECTED"}</span>
+<span style="color:#94A3B8;">Blocks Checked: ${res.total_blocks_checked} | Discrepancies: ${res.anomaly_count}</span>
+----------------------------------------------------------------------
+<span style="color:#CBD5E1;">${jsonStr}</span>
+`;
+    toast(res.is_valid ? "Audit Passed: Blockchain 100% valid." : "Audit Alert: Discrepancy detected!", !res.is_valid);
+    loadV2Stats();
+  } catch (err) {
+    term.innerHTML = `<span style="color:#F87171;">[ERROR] Audit failed: ${err.message || err}</span>`;
+  }
+}
+
+async function restoreLedger() {
+  try {
+    const res = await apiv2("/scenarios/restore", { method: "POST" });
+    const term = $("scenarioTerminal");
+    if (term) {
+      term.innerHTML = `
+<span style="color:#4ADE80;font-weight:700;">[LEDGER RESTORED TO VERIFIED STATE]</span>
+All blocks restored to original cryptographic state.
+Audit Verification: ${res.audit.is_valid ? "VALID & INTACT" : "ANOMALIES PRESENT"}
+Total Blocks Checked: ${res.audit.total_blocks_checked}
+`;
+    }
+    toast("Blockchain ledger restored to 100% verified state.");
+    loadV2Stats();
+  } catch (err) {
+    toast("Restore failed: " + (err.message || err), true);
+  }
 }
 
 // ───────────────────────── Boot ─────────────────────────
 (async function boot() {
-  await loadHealth();
-  await loadScenarios();
-  const q = new URLSearchParams(location.search);
-  if (q.get("tab")) showTab(q.get("tab"));
-  if (q.get("scenario")) await runScenario(q.get("scenario"));
+  initSimulator();
+  await loadV2Stats();
+  await runSimulateIntercept();
 })();
