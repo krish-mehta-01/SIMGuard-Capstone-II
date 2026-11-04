@@ -307,38 +307,74 @@ Total Blocks Verified: ${data.audit?.total_blocks_checked}`
            MAIN WORKSPACE
            ═══════════════════════════════════════════════════════════════ */}
       <div className="sg-main">
-        {/* Top Header Bar */}
+        {/* Top Header Bar — Compact 50px Dark Banner matching Image 2 */}
         <header className="sg-header">
           <div className="sg-header-left">
             <div className="sg-header-icon-box">
-              <Radio size={18} />
+              {activeTab === 'simulator' && <Shield size={16} />}
+              {activeTab === 'ledger' && <Layers size={16} />}
+              {activeTab === 'identity' && <Smartphone size={16} />}
+              {activeTab === 'defense' && <ShieldAlert size={16} />}
+              {activeTab === 'analytics' && <BarChart3 size={16} />}
+              {activeTab === 'settings' && <Settings size={16} />}
             </div>
             <div className="sg-header-titles">
-              <h1 className="sg-title">Communication Interception Demonstration</h1>
-              <p className="sg-subtitle">Compare legacy (unprotected) communication with SIMGUARD's cryptographic protection.</p>
+              <h1 className="sg-title">
+                {activeTab === 'simulator' && 'Communication Interception Demonstration'}
+                {activeTab === 'ledger' && 'Blockchain Ledger & Integrity Verification'}
+                {activeTab === 'identity' && 'Triple-Factor Device Identity Binding'}
+                {activeTab === 'defense' && 'Threat Defense & Cryptographic Audit'}
+                {activeTab === 'analytics' && 'Cryptographic Latency & Performance Telemetry'}
+                {activeTab === 'settings' && 'Cryptographic Node Configuration'}
+              </h1>
+              <span className="sg-title-sep">·</span>
+              <p className="sg-subtitle">
+                {activeTab === 'simulator' && 'Compare legacy unencrypted airwaves vs SIMGUARD cryptographic protection'}
+                {activeTab === 'ledger' && 'Immutable tamper-evident hash-chain of all network transactions'}
+                {activeTab === 'identity' && 'SIM IMSI + Hardware IMEI + Secure Enclave Keypair'}
+                {activeTab === 'defense' && 'Zero-Trust Policy Enforcement and Automated Tamper Detection'}
+                {activeTab === 'analytics' && 'End-to-End latency overhead and security audit metrics'}
+                {activeTab === 'settings' && 'Dual-mode Ganache RPC and DigitalLedger parameters'}
+              </p>
             </div>
           </div>
 
           <div className="sg-header-right">
-            <div className="sg-pill sg-pill-green">
+            <div className="sg-pill sg-pill-dark">
               <span className="sg-dot-green"></span>
               <span>Ledger: Active</span>
             </div>
-            <div className="sg-pill sg-pill-blue">
-              <Box size={13} />
+            <div className="sg-pill sg-pill-dark">
+              <Box size={12} />
               <span>Blocks: {ledgerStats?.total_blocks || 13}</span>
             </div>
-            <div className="sg-pill sg-pill-slate">
-              <Wifi size={13} />
-              <span>Network: 5G-SA</span>
-            </div>
-            <button className="sg-icon-btn" title="Notifications">
-              <Bell size={16} />
-            </button>
-            <div className="sg-user-badge">
-              <div className="sg-user-avatar">K</div>
-              <ChevronDown size={14} color="#64748B" />
-            </div>
+
+            {activeTab === 'simulator' && (
+              <div className="sg-header-toggle">
+                <button
+                  className={`sg-header-mode-btn ${!isProtectedMode ? 'active unprotected' : ''}`}
+                  onClick={() => {
+                    setIsProtectedMode(false);
+                    runSimulation(false, message);
+                  }}
+                  title="Legacy GSM: Plaintext airwaves vulnerable to IMSI-catchers"
+                >
+                  <Lock size={12} />
+                  <span>Legacy GSM (Unprotected)</span>
+                </button>
+                <button
+                  className={`sg-header-mode-btn ${isProtectedMode ? 'active protected' : ''}`}
+                  onClick={() => {
+                    setIsProtectedMode(true);
+                    runSimulation(true, message);
+                  }}
+                  title="SIMGUARD: AES-256 encrypted, Ed25519 signed, blockchain logged"
+                >
+                  <ShieldCheck size={12} />
+                  <span>SIMGUARD (Protected)</span>
+                </button>
+              </div>
+            )}
           </div>
         </header>
 
@@ -350,53 +386,25 @@ Total Blocks Verified: ${data.audit?.total_blocks_checked}`
                ═══════════════════════════════════════════════════════════════ */}
           {activeTab === 'simulator' && (
             <>
-              {/* Protocol Spec Sub-header Bar */}
-              <div className="sg-spec-bar">
-                <div className="sg-spec-mode">
-                  <span className="sg-spec-label">Communication Mode:</span>
-                  <div className="sg-mode-toggle">
-                    <button
-                      className={`sg-mode-option ${!isProtectedMode ? 'selected-legacy' : ''}`}
-                      onClick={() => {
-                        setIsProtectedMode(false);
-                        runSimulation(false, message);
-                      }}
-                    >
-                      <span className="sg-radio-dot"></span>
-                      <span>Legacy (Unprotected)</span>
-                    </button>
-                    <button
-                      className={`sg-mode-option ${isProtectedMode ? 'selected-simguard' : ''}`}
-                      onClick={() => {
-                        setIsProtectedMode(true);
-                        runSimulation(true, message);
-                      }}
-                    >
-                      <span className="sg-radio-dot-solid"></span>
-                      <span>SIMGUARD (Protected)</span>
-                    </button>
+              {/* Protocol Spec Badges Strip */}
+              <div className="sg-spec-badges-strip">
+                <div className="sg-spec-badge">
+                  <div className="sg-spec-badge-icon">
+                    <Lock size={12} />
                   </div>
+                  <span><strong>AES-256-GCM</strong> Payload Encryption</span>
                 </div>
-
-                <div className="sg-spec-badges">
-                  <div className="sg-spec-badge">
-                    <div className="sg-spec-badge-icon">
-                      <Lock size={13} />
-                    </div>
-                    <span><strong>AES-256</strong> Encryption</span>
+                <div className="sg-spec-badge">
+                  <div className="sg-spec-badge-icon">
+                    <Key size={12} />
                   </div>
-                  <div className="sg-spec-badge">
-                    <div className="sg-spec-badge-icon">
-                      <Key size={13} />
-                    </div>
-                    <span><strong>Ed25519</strong> Digital Signature</span>
+                  <span><strong>Ed25519</strong> Hardware Signature</span>
+                </div>
+                <div className="sg-spec-badge">
+                  <div className="sg-spec-badge-icon">
+                    <Hash size={12} />
                   </div>
-                  <div className="sg-spec-badge">
-                    <div className="sg-spec-badge-icon">
-                      <Hash size={13} />
-                    </div>
-                    <span><strong>SHA-256</strong> Integrity Hash</span>
-                  </div>
+                  <span><strong>SHA-256</strong> Merkle Hash-Chain Integrity</span>
                 </div>
               </div>
 
