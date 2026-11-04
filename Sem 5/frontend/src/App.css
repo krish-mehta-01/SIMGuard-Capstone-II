@@ -700,3 +700,87 @@ tr:last-child td {
 .toast.err {
   background: #DC2626;
 }
+
+
+/* ─── Top Header Banner (Replaces redundant top bar) ─── */
+.app-header-banner {
+  background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+  color: #FFFFFF;
+  padding: 16px 24px;
+  border-bottom: 1px solid #334155;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  min-height: 72px;
+}
+
+.header-left-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-title-row h2 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+  color: #F8FAFC;
+  letter-spacing: -0.01em;
+}
+
+.header-left-content p {
+  margin: 0;
+  font-size: 12px;
+  color: #94A3B8;
+}
+
+.header-right-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.header-chips {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chip.dark {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: #334155;
+  color: #E2E8F0;
+}
+
+.seg.dark {
+  background: #020617;
+  border-color: #334155;
+}
+
+.seg.dark button {
+  color: #94A3B8;
+}
+
+.seg.dark button.active {
+  background: #1E293B;
+  color: #F8FAFC;
+}
+
+.btn.ghost.dark {
+  color: #E2E8F0;
+  border-color: #334155;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.btn.ghost.dark:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
