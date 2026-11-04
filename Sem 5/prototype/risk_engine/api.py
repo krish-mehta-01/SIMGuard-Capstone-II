@@ -515,6 +515,20 @@ def index():
     return FileResponse(str(DASHBOARD_DIR / "index.html"))
 
 
+@app.get("/favicon.svg")
+def favicon():
+    if (REACT_DIST_DIR / "favicon.svg").exists():
+        return FileResponse(str(REACT_DIST_DIR / "favicon.svg"))
+    return FileResponse(str(DASHBOARD_DIR / "icons.svg"))
+
+
+@app.get("/simguard-logo.svg")
+def simguard_logo():
+    if (REACT_DIST_DIR / "simguard-logo.svg").exists():
+        return FileResponse(str(REACT_DIST_DIR / "simguard-logo.svg"))
+    return FileResponse(str(DASHBOARD_DIR / "simguard-logo.svg"))
+
+
 
 if __name__ == "__main__":
     import os
