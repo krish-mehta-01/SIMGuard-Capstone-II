@@ -10,14 +10,14 @@
   
   --border-default: #E2E8F0;
   --border-subtle: #F1F5F9;
-  --border-teal: #99F6E4;
+  --border-teal: #BFDBFE;
   --border-green: #A7F3D0;
   --border-red: #FECACA;
   --border-blue: #BFDBFE;
 
-  --color-teal: #0D9488;
-  --color-teal-dark: #0F766E;
-  --color-teal-light: #F0FDFA;
+  --color-teal: #2563EB;
+  --color-teal-dark: #1D4ED8;
+  --color-teal-light: #EFF6FF;
   
   --color-primary: #2563EB;
   --color-primary-dark: #1D4ED8;
@@ -95,15 +95,18 @@ html, body, #root {
 }
 
 .sg-brand-icon {
-  width: 34px;
-  height: 34px;
-  background: var(--color-teal);
-  border-radius: var(--radius-md);
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 5px rgba(13, 148, 136, 0.3);
   flex-shrink: 0;
+}
+
+.sg-brand-logo-img {
+  width: 32px;
+  height: 32px;
+  display: block;
 }
 
 .sg-brand-text {
@@ -165,7 +168,7 @@ html, body, #root {
 }
 
 .sg-nav-btn.active {
-  background: rgba(13, 148, 136, 0.09);
+  background: rgba(37, 99, 235, 0.08);
   color: var(--color-teal);
   font-weight: 700;
   border-left: 3px solid var(--color-teal);
@@ -210,7 +213,7 @@ html, body, #root {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: rgba(13, 148, 136, 0.12);
+  background: rgba(37, 99, 235, 0.12);
   color: var(--color-teal);
   display: flex;
   align-items: center;
@@ -464,7 +467,7 @@ html, body, #root {
 .sg-mode-option.selected-simguard {
   background: var(--color-teal);
   color: #FFFFFF;
-  box-shadow: 0 1px 4px rgba(13, 148, 136, 0.35);
+  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.35);
 }
 
 .sg-spec-badges {
@@ -621,7 +624,7 @@ html, body, #root {
 }
 
 .sg-flow-connector.secure .sg-flow-line {
-  background: linear-gradient(90deg, #10B981, #0D9488);
+  background: linear-gradient(90deg, #38BDF8, #2563EB);
 }
 
 .sg-flow-connector.unsecure .sg-flow-line {
