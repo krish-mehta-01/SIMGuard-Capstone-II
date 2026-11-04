@@ -1,6 +1,6 @@
 /* ==========================================================================
    SIMGuard Telecom Fraud Intelligence Console
-   Client Application Controller — SOC / Threat Intelligence Interface
+   Client Application Controller — Restrained, Professional Security UI
    Maintains all API endpoints, XGBoost inference, TreeSHAP explainability,
    and Ethereum smart contract anchors.
    ========================================================================== */
@@ -17,27 +17,19 @@ const state = {
 };
 
 const DECISION = {
-  AUTO_APPROVE: { cls: "approve", icon: "✓", label: "AUTO APPROVE", sub: "Low risk. Verified subscriber telemetry allows automated provisioning." },
-  MANUAL_REVIEW: { cls: "review", icon: "!", label: "MANUAL REVIEW", sub: "Elevated risk. Escalated to fraud analyst for out-of-band identity verification." },
-  AUTO_BLOCK: { cls: "block", icon: "✕", label: "AUTO BLOCK", sub: "Critical threat detected. Request terminated and flagged on immutable ledger." },
+  AUTO_APPROVE: { cls: "approve", icon: "✓", label: "AUTO APPROVE", sub: "Low risk. Legitimate subscriber replacement." },
+  MANUAL_REVIEW: { cls: "review", icon: "!", label: "MANUAL REVIEW", sub: "Elevated risk. Analyst verification required." },
+  AUTO_BLOCK: { cls: "block", icon: "✕", label: "AUTO BLOCK", sub: "Critical threat detected. Transaction stopped and recorded on-chain." },
 };
 
 const LAT_PARTS = [
-  ["telemetry_ms", "Telemetry verification", "#22C55E"],
-  ["ml_shap_ms", "Model + TreeSHAP", "#38BDF8"],
-  ["rules_ms", "Rules & Blacklist", "#F59E0B"],
+  ["telemetry_ms", "Telemetry verification", "#16A34A"],
+  ["ml_shap_ms", "Model + TreeSHAP", "#2563EB"],
+  ["rules_ms", "Rules & Blacklist", "#D97706"],
   ["hashing_ms", "Cryptographic Hashing", "#6366F1"],
-  ["chain_ms", "Blockchain Anchor", "#EF4444"],
-  ["db_ms", "Database Persistence", "#64748B"],
+  ["chain_ms", "Blockchain Anchor", "#DC2626"],
+  ["db_ms", "Database Persistence", "#6B7280"],
 ];
-
-const SCENARIO_ICONS = {
-  legitimate: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>`,
-  genuine: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>`,
-  suspicious: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
-  attack: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="18" y1="8" x2="23" y2="13"/><line x1="23" y1="8" x2="18" y2="13"/></svg>`,
-  blacklisted: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/><line x1="2" y1="2" x2="22" y2="22"/></svg>`,
-};
 
 // ───────────────────────── Helpers ─────────────────────────
 const $ = (id) => document.getElementById(id);
@@ -77,7 +69,7 @@ function makeCopyable(displayVal, fullVal, label = "Hash") {
       class: "copy-btn",
       title: `Copy full ${label}`,
       onclick: (e) => { e.stopPropagation(); copyToClipboard(fullVal, label); },
-      html: `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`
+      html: `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`
     })
   );
 }
@@ -98,7 +90,7 @@ function toast(msg, err = false) {
   t.className = "toast" + (err ? " err" : "");
   t.hidden = false;
   clearTimeout(toast._t);
-  toast._t = setTimeout(() => { t.hidden = true; }, 4000);
+  toast._t = setTimeout(() => { t.hidden = true; }, 3500);
 }
 
 function badge(decision) {
@@ -170,14 +162,14 @@ async function loadHealth() {
     );
 
     $("chipModel").replaceChildren(
-      h("span", { text: `Model ${hl.model_version} · ${hl.blacklist_size} Blacklisted IMEIs` })
+      h("span", { text: `${hl.model_version} · ${hl.blacklist_size} blacklisted IMEIs` })
     );
   } catch (e) {
     const c = $("chipChain");
     c.className = "chip down";
     c.replaceChildren(
       h("i", { class: "dot" }),
-      h("span", { text: "Risk Engine Offline" })
+      h("span", { text: "Engine Offline" })
     );
   }
 }
@@ -189,16 +181,12 @@ async function loadScenarios() {
   row.replaceChildren();
 
   for (const s of list) {
-    const iconSvg = SCENARIO_ICONS[s.key] || SCENARIO_ICONS.genuine;
     const btn = h("button", {
       class: "scenario",
       "data-key": s.key,
       onclick: () => runScenario(s.key),
     },
-      h("b", {},
-        h("span", { style: "display:inline-flex;color:var(--accent-primary);margin-right:6px;", html: iconSvg }),
-        s.label
-      ),
+      h("b", { text: s.label }),
       h("span", { text: s.description })
     );
     row.append(btn);
@@ -266,10 +254,10 @@ function renderGauge(risk) {
   g.style.setProperty("--t2", (t.block * 100) + "%");
   g.replaceChildren(
     h("div", { class: "pin", style: `left:${Math.min(Math.max(risk, 0), 1) * 100}%` }),
-    h("div", { class: "tick", style: "left:0", text: "0.0 Safe" }),
-    h("div", { class: "tick", style: `left:${t.review * 100}%`, text: `Review ≥ ${t.review}` }),
-    h("div", { class: "tick", style: `left:${t.block * 100}%`, text: `Block ≥ ${t.block}` }),
-    h("div", { class: "tick", style: "left:100%", text: "1.0 Risk" })
+    h("div", { class: "tick", style: "left:0", text: "0.0" }),
+    h("div", { class: "tick", style: `left:${t.review * 100}%`, text: `review ≥ ${t.review}` }),
+    h("div", { class: "tick", style: `left:${t.block * 100}%`, text: `block ≥ ${t.block}` }),
+    h("div", { class: "tick", style: "left:100%", text: "1.0" })
   );
 }
 
@@ -287,7 +275,7 @@ function renderDecision(res) {
 
   const parts = $("parts");
   parts.replaceChildren(
-    h("span", { class: "pill", text: `Model Probability ${pct(res.ml_probability)}` })
+    h("span", { class: "pill", text: `Model Probability: ${pct(res.ml_probability)}` })
   );
 
   if (!res.rule_detail || !res.rule_detail.length) {
@@ -345,7 +333,7 @@ function renderChain(res) {
   ]);
 
   const lat = res.latency_ms;
-  $("totalMs").textContent = `${fmt(lat.total_ms, 1)} ms Latency`;
+  $("totalMs").textContent = `${fmt(lat.total_ms, 1)} ms Total`;
   const total = LAT_PARTS.reduce((s, [k]) => s + (lat[k] || 0), 0);
 
   $("latBar").replaceChildren(
@@ -396,7 +384,7 @@ function renderLogTable() {
   if (!filtered.length) {
     tb.append(
       h("tr", {},
-        h("td", { colspan: 9, class: "empty", text: q ? "No matching decisions found." : "No decisions recorded yet — evaluate a request first." })
+        h("td", { colspan: 9, class: "empty", text: q ? "No matching decisions found." : "No decisions recorded yet." })
       )
     );
     return;
@@ -504,7 +492,7 @@ async function loadLedger() {
   if (!l.entries || !l.entries.length) {
     tb.append(
       h("tr", {},
-        h("td", { colspan: 8, class: "empty", text: "Blockchain ledger is currently empty." })
+        h("td", { colspan: 8, class: "empty", text: "Blockchain ledger is empty." })
       )
     );
     return;
@@ -549,8 +537,8 @@ async function loadTargets() {
 function auditBox(a) {
   const ok = a.integrity_ok;
   const box = h("div", { class: "result-box " + (ok ? "ok" : "bad") },
-    h("b", { text: ok ? "✓ Cryptographic Integrity Verified" : `⚠ ${a.tampered} Integrity Violation${a.tampered > 1 ? "s" : ""} Detected!` }),
-    h("div", { text: `${a.verified} of ${a.on_chain_entries} on-chain records match their off-chain cryptographic preimage in SQLite (${a.audit_seconds}s).` })
+    h("b", { text: ok ? "✓ Cryptographic Integrity Verified" : `⚠ ${a.tampered} Integrity Violation${a.tampered > 1 ? "s" : ""} Detected` }),
+    h("div", { text: `${a.verified} of ${a.on_chain_entries} on-chain records match off-chain preimage (${a.audit_seconds}s).` })
   );
 
   if (!ok && a.findings) {
@@ -571,7 +559,7 @@ $("btnVerify").addEventListener("click", async () => {
 document.querySelectorAll("[data-tamper]").forEach((b) => {
   b.addEventListener("click", async () => {
     const rid = $("tamperTarget").value;
-    if (!rid) return toast("Evaluate a request first to generate records.", true);
+    if (!rid) return toast("Evaluate a request first.", true);
     const t = await api("/demo/tamper", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -579,7 +567,7 @@ document.querySelectorAll("[data-tamper]").forEach((b) => {
     });
     const a = await api("/audit/verify");
     $("tamperResult").replaceChildren(
-      h("p", { class: "muted", style: "color:var(--warning);font-weight:600;", text: `Insider Action Simulated: ${t.change}.` }),
+      h("p", { class: "muted", style: "color:var(--color-warning);font-weight:600;", text: `Insider Action: ${t.change}.` }),
       auditBox(a)
     );
   });
@@ -589,7 +577,7 @@ $("btnRestore").addEventListener("click", async () => {
   await api("/demo/restore", { method: "POST" });
   const a = await api("/audit/verify");
   $("tamperResult").replaceChildren(
-    h("p", { class: "muted", style: "color:var(--success);font-weight:600;", text: "All database records restored to match blockchain state." }),
+    h("p", { class: "muted", style: "color:var(--color-success);font-weight:600;", text: "Database records restored to match blockchain state." }),
     auditBox(a)
   );
   loadTargets();
@@ -601,12 +589,12 @@ document.querySelectorAll("[data-edge]").forEach((b) => {
     const tb = document.querySelector("#edgeTable tbody");
     tb.prepend(
       h("tr", {},
-        h("td", { style: "font-weight:600;", text: r.what }),
+        h("td", { style: "font-weight:500;", text: r.what }),
         h("td", { class: "mono", text: r.reason }),
         h("td", {},
           h("span", {
             class: "tag " + (r.accepted ? "bad" : "ok"),
-            text: r.accepted ? "ACCEPTED (VULNERABLE)" : "REJECTED (DEFENDED)",
+            text: r.accepted ? "ACCEPTED" : "REJECTED",
           })
         )
       )
@@ -623,8 +611,8 @@ async function loadModel() {
   for (const [name, v] of Object.entries(m.comparison.models)) {
     const isProposed = name.includes("proposed");
     tb.append(
-      h("tr", { style: isProposed ? "background:rgba(56,189,248,0.08);font-weight:700;" : null },
-        h("td", { text: (isProposed ? "★ " : "") + name }),
+      h("tr", { style: isProposed ? "background:#1A2738;font-weight:600;" : null },
+        h("td", { text: name }),
         h("td", { class: "num", text: fmt(v.precision, 3) }),
         h("td", { class: "num", text: fmt(v.recall, 3) }),
         h("td", { class: "num", text: fmt(v.f1, 3) }),
@@ -635,15 +623,15 @@ async function loadModel() {
   }
 
   const sp = m.comparison.split;
-  $("modelNote").textContent = `Evaluation conducted on held-out test split of ${sp.test} requests (${sp.test_fraud} confirmed fraud cases). Policy thresholds fixed on validation set. 5-Fold Cross-Validation ROC-AUC: ${fmt(m.comparison.xgboost_cv.roc_auc_mean, 3)} ± ${fmt(m.comparison.xgboost_cv.roc_auc_std, 3)}.`;
+  $("modelNote").textContent = `Test set: ${sp.test} requests (${sp.test_fraud} fraud cases). Policy thresholds fixed on validation set. 5-Fold Cross-Validation ROC-AUC: ${fmt(m.comparison.xgboost_cv.roc_auc_mean, 3)} ± ${fmt(m.comparison.xgboost_cv.roc_auc_std, 3)}.`;
 
   const p = m.meta.policy;
   kv($("policyKv"), [
-    ["Algorithm Version", m.meta.model_version],
-    ["Ensemble Estimators", `${m.meta.n_trees} Trees`],
-    ["Review Threshold (t_review)", `Risk Score ≥ ${p.t_review}`],
-    ["Block Threshold (t_block)", `Risk Score ≥ ${p.t_block}`],
-    ["Max Review Capacity", pct(p.review_capacity)],
+    ["Model Version", m.meta.model_version],
+    ["Trees", m.meta.n_trees],
+    ["Review Threshold (t_review)", `≥ ${p.t_review}`],
+    ["Block Threshold (t_block)", `≥ ${p.t_block}`],
+    ["Review Capacity", pct(p.review_capacity)],
     ["Penalty: Missed Fraud", p.cost_weights.missed_fraud],
     ["Penalty: False Block", p.cost_weights.false_block],
     ["Cost: Manual Review", p.cost_weights.review],
