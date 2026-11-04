@@ -1,0 +1,16 @@
+# SIMGuard: blockchain-secured, explainable SIM swap fraud detection (Python 3.10+)
+numpy>=1.24
+pandas>=2.0
+scikit-learn>=1.3
+xgboost>=2.0          # model + built-in TreeSHAP (pred_contribs); no separate shap package needed
+matplotlib>=3.7
+fastapi>=0.110
+uvicorn>=0.27
+pydantic>=2.0
+httpx>=0.25           # API tests and tools/seed_console.py
+web3>=7.0             # talks to the Ethereum JSON-RPC node
+pytest>=8.0
+playwright>=1.40      # optional: tools/capture_screens.py (report screenshots)
+
+# Node.js 18+ is also needed for the Solidity compiler and local chain:
+#   cd blockchain && npm install

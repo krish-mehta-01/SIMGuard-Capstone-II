@@ -1,0 +1,10 @@
+{
+  "address": "0xe78A0F7E598Cc8b0Bb87894B0F60dD2a88d6a8Ab",
+  "deploy_tx": "9adf292c8132e970d6d800d1e547f8a7566a06e6d99665d65712104a5b7e51b8",
+  "deploy_gas_used": 909098,
+  "deployer": "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1",
+  "chain_id": 1337,
+  "block_number": 1,
+  "compiler": "0.8.24+commit.e11b9ed9.Emscripten.clang",
+  "deployed_bytecode_bytes": 3732
+}

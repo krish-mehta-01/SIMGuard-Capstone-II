@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIMGuard — SIM Swap Fraud Operations Console</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg>
+      </div>
+      <div>
+        <h1>SIMGuard</h1>
+        <p>SIM swap fraud operations console</p>
+      </div>
+    </div>
+    <div class="chips">
+      <span class="chip" id="chipChain"><i class="dot"></i><span>Connecting to chain…</span></span>
+      <span class="chip" id="chipModel"><span>Model …</span></span>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-tab="evaluate" role="tab">Evaluate request</button>
+    <button class="tab" data-tab="log" role="tab">Decision log</button>
+    <button class="tab" data-tab="ledger" role="tab">Blockchain ledger</button>
+    <button class="tab" data-tab="audit" role="tab">Integrity audit</button>
+    <button class="tab" data-tab="model" role="tab">Model performance</button>
+  </nav>
+
+  <main>
+    <!-- ───────── Evaluate ───────── -->
+    <section id="tab-evaluate" class="panel active">
+      <div class="scenario-row" id="scenarioRow"></div>
+
+      <div class="grid3">
+        <article class="card" id="cardRequest">
+          <h2>SIM replacement request</h2>
+          <div class="empty" id="reqEmpty">Choose a scenario above to load a real held-out request.</div>
+          <div id="reqBody" hidden>
+            <dl class="kv" id="reqKv"></dl>
+            <h3>Signed edge telemetry <span class="tag ok" id="telTag">HMAC verified</span></h3>
+            <dl class="kv" id="telKv"></dl>
+          </div>
+        </article>
+
+        <article class="card" id="cardDecision">
+          <h2>Decision</h2>
+          <div class="empty" id="decEmpty">No request evaluated yet.</div>
+          <div id="decBody" hidden>
+            <div class="verdict" id="verdict">
+              <div class="verdict-icon" id="verdictIcon"></div>
+              <div class="verdict-text">
+                <div class="verdict-label" id="verdictLabel"></div>
+                <div class="verdict-sub" id="verdictSub"></div>
+              </div>
+              <div class="verdict-score"><span id="verdictScore"></span><small>risk score</small></div>
+            </div>
+            <div class="gauge" id="gauge" aria-label="Risk score against policy thresholds"></div>
+            <div class="parts" id="parts"></div>
+            <h3>Why this decision <span class="hint">TreeSHAP contribution to the log-odds of fraud</span></h3>
+            <div id="shapBars"></div>
+            <div class="legend"><span><i class="sw up"></i>raises fraud risk</span><span><i class="sw down"></i>lowers fraud risk</span></div>
+            <p class="summary" id="summary"></p>
+          </div>
+        </article>
+
+        <article class="card" id="cardChain">
+          <h2>Blockchain anchor</h2>
+          <div class="empty" id="chainEmpty">The decision is anchored on-chain once evaluated.</div>
+          <div id="chainBody" hidden>
+            <dl class="kv" id="chainKv"></dl>
+            <h3>Processing time <span class="hint" id="totalMs"></span></h3>
+            <div class="stack" id="latBar"></div>
+            <ul class="lat-list" id="latList"></ul>
+          </div>
+        </article>
+      </div>
+      <div class="toast" id="toast" hidden></div>
+    </section>
+
+    <!-- ───────── Decision log ───────── -->
+    <section id="tab-log" class="panel">
+      <div class="toolbar">
+        <h2>Decision log <span class="hint" id="logCount"></span></h2>
+        <div class="seg" id="logFilter">
+          <button class="active" data-f="">All</button>
+          <button data-f="AUTO_APPROVE">Approved</button>
+          <button data-f="MANUAL_REVIEW">Review</button>
+          <button data-f="AUTO_BLOCK">Blocked</button>
+        </div>
+      </div>
+      <div class="table-wrap"><table id="logTable"><thead><tr>
+        <th>Entry</th><th>Time (UTC)</th><th>Subscriber</th><th>Channel</th><th>Decision</th><th>Risk</th><th>Rules triggered</th><th>Transaction</th><th></th>
+      </tr></thead><tbody></tbody></table></div>
+    </section>
+
+    <!-- ───────── Ledger ───────── -->
+    <section id="tab-ledger" class="panel">
+      <div class="toolbar"><h2>On-chain audit ledger</h2></div>
+      <div class="stats" id="ledgerStats"></div>
+      <dl class="kv wide" id="ledgerInfo"></dl>
+      <div class="table-wrap"><table id="ledgerTable"><thead><tr>
+        <th>ID</th><th>Block</th><th>Subscriber ref</th><th>Decision</th><th>Risk</th><th>Decision hash</th><th>SHAP hash</th><th>Analyst outcome</th>
+      </tr></thead><tbody></tbody></table></div>
+    </section>
+
+    <!-- ───────── Audit ───────── -->
+    <section id="tab-audit" class="panel">
+      <div class="grid2">
+        <article class="card">
+          <h2>Verify every record against the blockchain</h2>
+          <p class="muted">Recomputes the decision hash and SHAP hash of each off-chain record and compares them with the values anchored in the smart contract.</p>
+          <button class="btn primary" id="btnVerify">Run integrity audit</button>
+          <div id="auditResult" class="audit-result"></div>
+        </article>
+        <article class="card">
+          <h2>Insider attack simulation</h2>
+          <p class="muted">An insider with database access edits the operator's off-chain records. The blockchain entries cannot be edited, so the audit exposes the change.</p>
+          <label class="field">Target record
+            <select id="tamperTarget"></select>
+          </label>
+          <div class="btn-row">
+            <button class="btn" data-tamper="decision">Change the decision</button>
+            <button class="btn" data-tamper="explanation">Alter the explanation</button>
+            <button class="btn" data-tamper="delete">Delete the record</button>
+            <button class="btn ghost" id="btnRestore">Restore records</button>
+          </div>
+          <div id="tamperResult" class="audit-result"></div>
+        </article>
+      </div>
+      <article class="card">
+        <h2>Edge telemetry attack simulation</h2>
+        <p class="muted">Each attack is submitted to the live engine as a SIM replacement request carrying doctored edge telemetry.</p>
+        <div class="btn-row">
+          <button class="btn" data-edge="tamper_payload">Alter a field in transit</button>
+          <button class="btn" data-edge="replay">Replay a captured packet</button>
+          <button class="btn" data-edge="stale">Submit a stale packet</button>
+          <button class="btn" data-edge="unknown_device">Use an unregistered device</button>
+        </div>
+        <div class="table-wrap slim"><table id="edgeTable"><thead><tr><th>Attack</th><th>Engine response</th><th>Outcome</th></tr></thead><tbody></tbody></table></div>
+      </article>
+    </section>
+
+    <!-- ───────── Model ───────── -->
+    <section id="tab-model" class="panel">
+      <div class="grid2">
+        <article class="card">
+          <h2>Model comparison <span class="hint">held-out test set</span></h2>
+          <div class="table-wrap slim"><table id="modelTable"><thead><tr><th>Model</th><th>Precision</th><th>Recall</th><th>F1</th><th>ROC-AUC</th><th>PR-AUC</th></tr></thead><tbody></tbody></table></div>
+          <p class="muted" id="modelNote"></p>
+        </article>
+        <article class="card">
+          <h2>Operating policy</h2>
+          <dl class="kv" id="policyKv"></dl>
+        </article>
+      </div>
+      <div class="grid2">
+        <article class="card"><h2>ROC and precision–recall curves</h2><img class="fig" src="/figures/roc_pr_curves.png" alt="ROC and precision-recall curves"></article>
+        <article class="card"><h2>Global feature importance</h2><img class="fig" src="/figures/shap_importance.png" alt="SHAP feature importance"></article>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="resolveDialog">
+    <form method="dialog" id="resolveForm">
+      <h2>Resolve manual review</h2>
+      <p class="muted" id="resolveFor"></p>
+      <label class="field">Final decision
+        <select id="resolveDecision"><option value="AUTO_APPROVE">Approve the swap</option><option value="AUTO_BLOCK">Block the swap</option></select>
+      </label>
+      <label class="field">Analyst ID<input id="resolveAnalyst" value="ANL-007" autocomplete="off"></label>
+      <label class="field">Justification<textarea id="resolveNote" rows="3" placeholder="e.g. Called the registered number; customer confirmed the request."></textarea></label>
+      <div class="btn-row"><button class="btn ghost" value="cancel">Cancel</button><button class="btn primary" id="resolveSubmit" value="ok">Record on-chain</button></div>
+    </form>
+  </dialog>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

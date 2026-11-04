@@ -1,0 +1,549 @@
+{
+  "contractName": "SIMSwapAuditLog",
+  "compiler": "0.8.24+commit.e11b9ed9.Emscripten.clang",
+  "optimizer": {
+    "enabled": true,
+    "runs": 200
+  },
+  "evmVersion": "shanghai",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "AlreadyResolved",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidFinalDecision",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidScore",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotAuthorizedEngine",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotPendingReview",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "UnknownEntry",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ZeroAddress",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "entryId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "subscriberRef",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "enum SIMSwapAuditLog.Decision",
+          "name": "decision",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint16",
+          "name": "riskBps",
+          "type": "uint16"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "decisionHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "shapHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "DecisionLogged",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "engine",
+          "type": "address"
+        }
+      ],
+      "name": "EngineAuthorized",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "engine",
+          "type": "address"
+        }
+      ],
+      "name": "EngineRevoked",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "entryId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "enum SIMSwapAuditLog.Decision",
+          "name": "finalDecision",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "analystRef",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "noteHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "ReviewResolved",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "engine",
+          "type": "address"
+        }
+      ],
+      "name": "authorizeEngine",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "authorizedEngines",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "decisionCounts",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "entryCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "getEntry",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "subscriberRef",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "decisionHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "shapHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint48",
+              "name": "timestamp",
+              "type": "uint48"
+            },
+            {
+              "internalType": "uint16",
+              "name": "riskBps",
+              "type": "uint16"
+            },
+            {
+              "internalType": "enum SIMSwapAuditLog.Decision",
+              "name": "decision",
+              "type": "uint8"
+            },
+            {
+              "internalType": "address",
+              "name": "loggedBy",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct SIMSwapAuditLog.AuditEntry",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "getResolution",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "enum SIMSwapAuditLog.Decision",
+              "name": "finalDecision",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "analystRef",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "noteHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint48",
+              "name": "timestamp",
+              "type": "uint48"
+            },
+            {
+              "internalType": "address",
+              "name": "resolvedBy",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct SIMSwapAuditLog.Resolution",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getStats",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "total",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "approved",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "review",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "blocked",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "subscriberRef",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getSubscriberEntries",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "isResolved",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "subscriberRef",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "enum SIMSwapAuditLog.Decision",
+          "name": "decision",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint16",
+          "name": "riskBps",
+          "type": "uint16"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "decisionHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "shapHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "logDecision",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "entryId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "enum SIMSwapAuditLog.Decision",
+          "name": "finalDecision",
+          "type": "uint8"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "analystRef",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "noteHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "resolveReview",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "engine",
+          "type": "address"
+        }
+      ],
+      "name": "revokeEngine",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "decisionHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "shapHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "verifyEntry",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "decisionOk",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "shapOk",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x608060405234801561000f575f80fd5b505f80546001600160a01b03191633908117825580825260086020526040808320805460ff19166001179055519091907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0908290a360405133907f139faa851b4d3f394b4cc80730f7d9fa35fbc30c533264acd2fac733b6bfe79e905f90a2610e948061009b5f395ff3fe608060405234801561000f575f80fd5b50600436106100f0575f3560e01c8063b1bf884a11610093578063d565a53311610063578063d565a53314610244578063de682a0a14610264578063f2fde38b14610277578063f33fdc2a1461028a575f80fd5b8063b1bf884a146101a8578063bae78d7b146101da578063c59d4847146101fa578063cc4e195414610222575f80fd5b80635f65d555116100ce5780635f65d55514610145578063627204e31461015857806372bb44371461016b5780638da5cb5b1461017e575f80fd5b80630cbb0f83146100f45780630f89307c1461011057806334134cce14610125575b5f80fd5b6100fd60015481565b6040519081526020015b60405180910390f35b61012361011e366004610bb3565b6102b4565b005b610138610133366004610beb565b6104d7565b6040516101079190610c02565b6100fd610153366004610beb565b610536565b610123610166366004610c45565b61054c565b610123610179366004610c45565b6105be565b5f54610190906001600160a01b031681565b6040516001600160a01b039091168152602001610107565b6101ca6101b6366004610c45565b60086020525f908152604090205460ff1681565b6040519015158152602001610107565b6101ed6101e8366004610beb565b61065a565b6040516101079190610ca6565b610202610767565b604080519485526020850193909352918301526060820152608001610107565b6101ca610230366004610beb565b60076020525f908152604090205460ff1681565b610257610252366004610beb565b610797565b6040516101079190610d0f565b6100fd610272366004610d5f565b610876565b610123610285366004610c45565b610aaf565b61029d610298366004610db1565b610b59565b604080519215158352901515602083015201610107565b335f9081526008602052604090205460ff166102e3576040516334e9343560e21b815260040160405180910390fd5b600154841061030557604051630d8fa6af60e21b815260040160405180910390fd5b60015f85815260056020526040902060030154600160401b900460ff16600281111561033357610333610c72565b14610351576040516325b1c66f60e21b815260040160405180910390fd5b5f8481526007602052604090205460ff1615610380576040516336ab81e160e11b815260040160405180910390fd5b600183600281111561039457610394610c72565b036103b257604051630f28267360e21b815260040160405180910390fd5b5f8481526007602052604090819020805460ff19166001179055805160a08101909152808460028111156103e8576103e8610c72565b81526020808201859052604080830185905265ffffffffffff42166060840152336080909301929092525f87815260069091522081518154829060ff1916600183600281111561043a5761043a610c72565b02179055506020820151600182015560408083015160028301556060830151600390920180546080909401516001600160a01b0316600160301b026001600160d01b031990941665ffffffffffff909316929092179290921790555184907fd72306300da8c77df06dd59e4b240402abe12b01b84ae1f47ae76015fc7f230d906104c990869086908690610dda565b60405180910390a250505050565b5f8181526009602090815260409182902080548351818402810184019094528084526060939283018282801561052a57602002820191905f5260205f20905b815481526020019060010190808311610516575b50505050509050919050565b60028160038110610545575f80fd5b0154905081565b5f546001600160a01b03163314610576576040516330cd747160e01b815260040160405180910390fd5b6001600160a01b0381165f81815260086020526040808220805460ff19169055517f72e417853942e3f950e05a1ab4e3a16178d5eb3d0b226092ac31737a168cf0999190a250565b5f546001600160a01b031633146105e8576040516330cd747160e01b815260040160405180910390fd5b6001600160a01b03811661060f5760405163d92e233d60e01b815260040160405180910390fd5b6001600160a01b0381165f81815260086020526040808220805460ff19166001179055517f139faa851b4d3f394b4cc80730f7d9fa35fbc30c533264acd2fac733b6bfe79e9190a250565b6040805160e0810182525f80825260208201819052918101829052606081018290526080810182905260a0810182905260c081019190915260015482106106b457604051630d8fa6af60e21b815260040160405180910390fd5b5f82815260056020908152604091829020825160e0810184528154815260018201549281019290925260028082015493830193909352600381015465ffffffffffff81166060840152600160301b810461ffff1660808401529192909160a0840191600160401b90910460ff169081111561073157610731610c72565b600281111561074257610742610c72565b815260039190910154600160481b90046001600160a01b031660209091015292915050565b5f805f8060015460025f6003811061078157610781610df9565b0154600354600454929791965094509092509050565b6040805160a0810182525f808252602082018190529181018290526060810182905260808101919091525f8281526007602052604090205460ff166107ef57604051630d8fa6af60e21b815260040160405180910390fd5b5f8281526006602052604090819020815160a081019092528054829060ff16600281111561081f5761081f610c72565b600281111561083057610830610c72565b8152600182015460208201526002820154604082015260039091015465ffffffffffff81166060830152600160301b90046001600160a01b031660809091015292915050565b335f9081526008602052604081205460ff166108a5576040516334e9343560e21b815260040160405180910390fd5b6127108461ffff1611156108cc57604051631556136560e01b815260040160405180910390fd5b60018054905f6108db83610e0d565b9190505590506040518060e001604052808781526020018481526020018381526020014265ffffffffffff1681526020018561ffff16815260200186600281111561092857610928610c72565b8152336020918201525f83815260058252604090819020835181559183015160018301558201516002808301919091556060830151600383018054608086015161ffff16600160301b0267ffffffffffffffff1990911665ffffffffffff909316929092179190911780825560a08501519268ff00000000000000001990911690600160401b9084908111156109c0576109c0610c72565b021790555060c09190910151600390910180546001600160a01b03909216600160481b027fffffff0000000000000000000000000000000000000000ffffffffffffffffff9092169190911790555f8681526009602090815260408220805460018101825590835291200181905560028581811115610a4157610a41610c72565b60ff1660038110610a5457610a54610df9565b018054905f610a6283610e0d565b919050555085817fa517cda09cee130436e15271a76bb7b626a78fb66784c1245fd28b3dc62ca3fc87878787604051610a9e9493929190610e31565b60405180910390a395945050505050565b5f546001600160a01b03163314610ad9576040516330cd747160e01b815260040160405180910390fd5b6001600160a01b038116610b005760405163d92e233d60e01b815260040160405180910390fd5b5f80546040516001600160a01b03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a35f80546001600160a01b0319166001600160a01b0392909216919091179055565b5f806001548510610b7d57604051630d8fa6af60e21b815260040160405180910390fd5b50505f928352600560205260409092206001810154600290910154911492911490565b803560038110610bae575f80fd5b919050565b5f805f8060808587031215610bc6575f80fd5b84359350610bd660208601610ba0565b93969395505050506040820135916060013590565b5f60208284031215610bfb575f80fd5b5035919050565b602080825282518282018190525f9190848201906040850190845b81811015610c3957835183529284019291840191600101610c1d565b50909695505050505050565b5f60208284031215610c55575f80fd5b81356001600160a01b0381168114610c6b575f80fd5b9392505050565b634e487b7160e01b5f52602160045260245ffd5b60038110610ca257634e487b7160e01b5f52602160045260245ffd5b9052565b5f60e08201905082518252602083015160208301526040830151604083015265ffffffffffff606084015116606083015261ffff608084015116608083015260a0830151610cf760a0840182610c86565b5060c0928301516001600160a01b0316919092015290565b5f60a082019050610d21828451610c86565b602083015160208301526040830151604083015265ffffffffffff606084015116606083015260018060a01b03608084015116608083015292915050565b5f805f805f60a08688031215610d73575f80fd5b85359450610d8360208701610ba0565b9350604086013561ffff81168114610d99575f80fd5b94979396509394606081013594506080013592915050565b5f805f60608486031215610dc3575f80fd5b505081359360208301359350604090920135919050565b60608101610de88286610c86565b602082019390935260400152919050565b634e487b7160e01b5f52603260045260245ffd5b5f60018201610e2a57634e487b7160e01b5f52601160045260245ffd5b5060010190565b60808101610e3f8287610c86565b61ffff851660208301528360408301528260608301529594505050505056fea2646970667358221220106c8b3ca80cd9250a14b8b3b246ec77479621f302d4049958500e5fd23609cd64736f6c63430008180033",
+  "deployedBytecodeSize": 3732
+}

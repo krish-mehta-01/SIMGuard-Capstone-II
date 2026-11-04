@@ -1,0 +1,48 @@
+{
+  "model_version": "xgb-sim-swap-2026.10-v1",
+  "features": [
+    "account_age_days",
+    "sim_age_days",
+    "swaps_last_180d",
+    "imei_changed",
+    "device_age_days",
+    "old_sim_last_seen_min",
+    "distance_from_home_km",
+    "cell_changes_24h",
+    "hour_of_request",
+    "is_weekend",
+    "channel_code",
+    "kyc_biometric_verified",
+    "auth_failures_7d",
+    "profile_change_7d",
+    "agent_swaps_24h",
+    "roaming_flag"
+  ],
+  "best_iteration": 197,
+  "n_trees": 198,
+  "hyperparameters": {
+    "max_depth": 4,
+    "learning_rate": 0.05,
+    "subsample": 0.8,
+    "colsample_bytree": 0.8,
+    "min_child_weight": 2
+  },
+  "classification_threshold": 0.2729,
+  "policy": {
+    "t_review": 0.13,
+    "t_block": 0.9,
+    "validation_cost": 3209.0,
+    "cost_weights": {
+      "missed_fraud": 100.0,
+      "false_block": 20.0,
+      "review": 1.0
+    },
+    "review_capacity": 0.08
+  },
+  "base_value_logodds": -2.971616744995117,
+  "train_size": 12000,
+  "val_size": 4000,
+  "test_size": 4000,
+  "dataset_size": 20000,
+  "fraud_rate": 0.05
+}

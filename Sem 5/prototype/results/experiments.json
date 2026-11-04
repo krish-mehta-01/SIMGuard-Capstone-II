@@ -1,0 +1,435 @@
+{
+  "policy": {
+    "Static checklist (today)": {
+      "n": 4000,
+      "n_fraud": 200,
+      "n_legit": 3800,
+      "fraud_AUTO_APPROVE": 121,
+      "fraud_MANUAL_REVIEW": 59,
+      "fraud_AUTO_BLOCK": 20,
+      "legit_AUTO_APPROVE": 3718,
+      "legit_MANUAL_REVIEW": 80,
+      "legit_AUTO_BLOCK": 2,
+      "fraud_caught_pct": 39.5,
+      "fraud_blocked_pct": 10.0,
+      "fraud_missed": 121,
+      "review_rate_pct": 3.48,
+      "false_block_pct_of_legit": 0.053,
+      "legit_frictionless_pct": 97.84,
+      "flag_precision_pct": 49.07
+    },
+    "Rules only": {
+      "n": 4000,
+      "n_fraud": 200,
+      "n_legit": 3800,
+      "fraud_AUTO_APPROVE": 128,
+      "fraud_MANUAL_REVIEW": 52,
+      "fraud_AUTO_BLOCK": 20,
+      "legit_AUTO_APPROVE": 3697,
+      "legit_MANUAL_REVIEW": 96,
+      "legit_AUTO_BLOCK": 7,
+      "fraud_caught_pct": 36.0,
+      "fraud_blocked_pct": 10.0,
+      "fraud_missed": 128,
+      "review_rate_pct": 3.7,
+      "false_block_pct_of_legit": 0.184,
+      "legit_frictionless_pct": 97.29,
+      "flag_precision_pct": 41.14
+    },
+    "ML only (XGBoost)": {
+      "n": 4000,
+      "n_fraud": 200,
+      "n_legit": 3800,
+      "fraud_AUTO_APPROVE": 36,
+      "fraud_MANUAL_REVIEW": 77,
+      "fraud_AUTO_BLOCK": 87,
+      "legit_AUTO_APPROVE": 3719,
+      "legit_MANUAL_REVIEW": 81,
+      "legit_AUTO_BLOCK": 0,
+      "fraud_caught_pct": 82.0,
+      "fraud_blocked_pct": 43.5,
+      "fraud_missed": 36,
+      "review_rate_pct": 3.95,
+      "false_block_pct_of_legit": 0.0,
+      "legit_frictionless_pct": 97.87,
+      "flag_precision_pct": 66.94
+    },
+    "Hybrid risk engine (proposed)": {
+      "n": 4000,
+      "n_fraud": 200,
+      "n_legit": 3800,
+      "fraud_AUTO_APPROVE": 31,
+      "fraud_MANUAL_REVIEW": 61,
+      "fraud_AUTO_BLOCK": 108,
+      "legit_AUTO_APPROVE": 3583,
+      "legit_MANUAL_REVIEW": 210,
+      "legit_AUTO_BLOCK": 7,
+      "fraud_caught_pct": 84.5,
+      "fraud_blocked_pct": 54.0,
+      "fraud_missed": 31,
+      "review_rate_pct": 6.78,
+      "false_block_pct_of_legit": 0.184,
+      "legit_frictionless_pct": 94.29,
+      "flag_precision_pct": 43.78
+    },
+    "thresholds": {
+      "review": 0.13,
+      "block": 0.9
+    }
+  },
+  "by_attack": {
+    "FORGED_ID_STORE": {
+      "n": 37,
+      "caught_pct": 75.7,
+      "blocked_pct": 27.0,
+      "ml_only_caught_pct": 73.0
+    },
+    "INSIDER_RETAILER": {
+      "n": 46,
+      "caught_pct": 95.7,
+      "blocked_pct": 56.5,
+      "ml_only_caught_pct": 93.5
+    },
+    "RAPID_RESWAP": {
+      "n": 13,
+      "caught_pct": 92.3,
+      "blocked_pct": 76.9,
+      "ml_only_caught_pct": 92.3
+    },
+    "SOCIAL_ENGINEERING": {
+      "n": 89,
+      "caught_pct": 94.4,
+      "blocked_pct": 69.7,
+      "ml_only_caught_pct": 91.0
+    },
+    "STEALTH": {
+      "n": 15,
+      "caught_pct": 6.7,
+      "blocked_pct": 0.0,
+      "ml_only_caught_pct": 6.7
+    }
+  },
+  "sweep": [
+    {
+      "t_review": 0.02,
+      "review_rate_pct": 25.07,
+      "fraud_caught_pct": 93.5,
+      "legit_frictionless_pct": 75.5
+    },
+    {
+      "t_review": 0.04,
+      "review_rate_pct": 19.07,
+      "fraud_caught_pct": 92.0,
+      "legit_frictionless_pct": 81.74
+    },
+    {
+      "t_review": 0.06,
+      "review_rate_pct": 16.77,
+      "fraud_caught_pct": 90.0,
+      "legit_frictionless_pct": 84.05
+    },
+    {
+      "t_review": 0.08,
+      "review_rate_pct": 15.38,
+      "fraud_caught_pct": 87.0,
+      "legit_frictionless_pct": 85.37
+    },
+    {
+      "t_review": 0.1,
+      "review_rate_pct": 14.9,
+      "fraud_caught_pct": 87.0,
+      "legit_frictionless_pct": 85.87
+    },
+    {
+      "t_review": 0.12,
+      "review_rate_pct": 7.5,
+      "fraud_caught_pct": 84.5,
+      "legit_frictionless_pct": 93.53
+    },
+    {
+      "t_review": 0.14,
+      "review_rate_pct": 6.45,
+      "fraud_caught_pct": 84.5,
+      "legit_frictionless_pct": 94.63
+    },
+    {
+      "t_review": 0.16,
+      "review_rate_pct": 5.8,
+      "fraud_caught_pct": 84.5,
+      "legit_frictionless_pct": 95.32
+    },
+    {
+      "t_review": 0.18,
+      "review_rate_pct": 5.28,
+      "fraud_caught_pct": 83.5,
+      "legit_frictionless_pct": 95.82
+    },
+    {
+      "t_review": 0.2,
+      "review_rate_pct": 5.0,
+      "fraud_caught_pct": 83.0,
+      "legit_frictionless_pct": 96.08
+    },
+    {
+      "t_review": 0.22,
+      "review_rate_pct": 4.83,
+      "fraud_caught_pct": 82.5,
+      "legit_frictionless_pct": 96.24
+    },
+    {
+      "t_review": 0.24,
+      "review_rate_pct": 4.65,
+      "fraud_caught_pct": 82.0,
+      "legit_frictionless_pct": 96.39
+    },
+    {
+      "t_review": 0.26,
+      "review_rate_pct": 4.53,
+      "fraud_caught_pct": 81.5,
+      "legit_frictionless_pct": 96.5
+    },
+    {
+      "t_review": 0.28,
+      "review_rate_pct": 4.45,
+      "fraud_caught_pct": 81.0,
+      "legit_frictionless_pct": 96.55
+    },
+    {
+      "t_review": 0.3,
+      "review_rate_pct": 4.35,
+      "fraud_caught_pct": 80.5,
+      "legit_frictionless_pct": 96.63
+    },
+    {
+      "t_review": 0.32,
+      "review_rate_pct": 4.33,
+      "fraud_caught_pct": 80.5,
+      "legit_frictionless_pct": 96.66
+    },
+    {
+      "t_review": 0.34,
+      "review_rate_pct": 4.22,
+      "fraud_caught_pct": 79.5,
+      "legit_frictionless_pct": 96.71
+    },
+    {
+      "t_review": 0.36,
+      "review_rate_pct": 4.15,
+      "fraud_caught_pct": 79.5,
+      "legit_frictionless_pct": 96.79
+    },
+    {
+      "t_review": 0.38,
+      "review_rate_pct": 4.1,
+      "fraud_caught_pct": 79.0,
+      "legit_frictionless_pct": 96.82
+    },
+    {
+      "t_review": 0.4,
+      "review_rate_pct": 4.08,
+      "fraud_caught_pct": 79.0,
+      "legit_frictionless_pct": 96.84
+    },
+    {
+      "t_review": 0.42,
+      "review_rate_pct": 4.05,
+      "fraud_caught_pct": 79.0,
+      "legit_frictionless_pct": 96.87
+    },
+    {
+      "t_review": 0.44,
+      "review_rate_pct": 3.95,
+      "fraud_caught_pct": 79.0,
+      "legit_frictionless_pct": 96.97
+    },
+    {
+      "t_review": 0.46,
+      "review_rate_pct": 3.95,
+      "fraud_caught_pct": 79.0,
+      "legit_frictionless_pct": 96.97
+    },
+    {
+      "t_review": 0.48,
+      "review_rate_pct": 3.88,
+      "fraud_caught_pct": 79.0,
+      "legit_frictionless_pct": 97.05
+    },
+    {
+      "t_review": 0.5,
+      "review_rate_pct": 3.85,
+      "fraud_caught_pct": 78.5,
+      "legit_frictionless_pct": 97.05
+    },
+    {
+      "t_review": 0.52,
+      "review_rate_pct": 3.85,
+      "fraud_caught_pct": 78.5,
+      "legit_frictionless_pct": 97.05
+    },
+    {
+      "t_review": 0.54,
+      "review_rate_pct": 3.75,
+      "fraud_caught_pct": 77.5,
+      "legit_frictionless_pct": 97.11
+    },
+    {
+      "t_review": 0.56,
+      "review_rate_pct": 3.7,
+      "fraud_caught_pct": 77.0,
+      "legit_frictionless_pct": 97.13
+    },
+    {
+      "t_review": 0.58,
+      "review_rate_pct": 3.65,
+      "fraud_caught_pct": 76.5,
+      "legit_frictionless_pct": 97.16
+    },
+    {
+      "t_review": 0.6,
+      "review_rate_pct": 3.58,
+      "fraud_caught_pct": 75.0,
+      "legit_frictionless_pct": 97.16
+    }
+  ],
+  "latency": {
+    "n": 300,
+    "components": {
+      "telemetry_ms": {
+        "median": 2.56,
+        "p95": 9.41,
+        "mean": 3.83
+      },
+      "ml_shap_ms": {
+        "median": 1.98,
+        "p95": 5.81,
+        "mean": 2.77
+      },
+      "rules_ms": {
+        "median": 1.5,
+        "p95": 4.52,
+        "mean": 1.99
+      },
+      "hashing_ms": {
+        "median": 0.31,
+        "p95": 0.89,
+        "mean": 0.4
+      },
+      "chain_ms": {
+        "median": 117.41,
+        "p95": 349.93,
+        "mean": 168.37
+      },
+      "db_ms": {
+        "median": 13.93,
+        "p95": 35.09,
+        "mean": 18.62
+      },
+      "total_ms": {
+        "median": 143.49,
+        "p95": 393.36,
+        "mean": 197.44
+      }
+    },
+    "decision_without_chain_ms": {
+      "median": 21.21,
+      "p95": 58.89
+    },
+    "throughput_per_s": 4.76,
+    "wall_s": 63.0
+  },
+  "gas": {
+    "deploy_gas": 909098,
+    "bytecode_bytes": 3732,
+    "log_min": 172204,
+    "log_median": 172240,
+    "log_mean": 172401,
+    "log_max": 189364,
+    "resolve_median": 142728,
+    "assumed_gas_price_gwei": 20,
+    "log_cost_eth_at_assumed_price": 0.003448,
+    "n_logged": 300
+  },
+  "consistency": {
+    "n": 300,
+    "online_offline_mismatches": 0
+  },
+  "audit": {
+    "entries": 300,
+    "verified": 300,
+    "integrity_ok": true,
+    "seconds": 8.71,
+    "ms_per_entry": 29.03
+  },
+  "tamper": {
+    "Change the decision": {
+      "trials": 100,
+      "detected": 100
+    },
+    "Lower the risk score": {
+      "trials": 100,
+      "detected": 100
+    },
+    "Alter the SHAP explanation": {
+      "trials": 100,
+      "detected": 100
+    },
+    "Alter an input feature value": {
+      "trials": 100,
+      "detected": 100
+    },
+    "Clear the rule flags": {
+      "trials": 47,
+      "detected": 47
+    },
+    "Relabel the model version": {
+      "trials": 100,
+      "detected": 100
+    },
+    "Delete a record": {
+      "trials": 15,
+      "detected": 15
+    },
+    "Insert a forged record": {
+      "trials": 15,
+      "detected": 15
+    },
+    "clean_audit_after_restore": true,
+    "baselines": {
+      "Local hash chain, insider recomputes hashes": {
+        "trials": 100,
+        "detected": 0
+      }
+    }
+  },
+  "edge": {
+    "Genuine telemetry (should be accepted)": {
+      "trials": 100,
+      "accepted": 100
+    },
+    "Payload field altered": {
+      "trials": 100,
+      "rejected": 100
+    },
+    "Packet replayed": {
+      "trials": 100,
+      "rejected": 100
+    },
+    "Stale packet (1 h old)": {
+      "trials": 100,
+      "rejected": 100
+    },
+    "Unregistered device": {
+      "trials": 100,
+      "rejected": 100
+    },
+    "Invalid IMEI checksum": {
+      "trials": 100,
+      "rejected": 100
+    },
+    "Wrong signing key": {
+      "trials": 100,
+      "rejected": 100
+    }
+  },
+  "model_version": "xgb-sim-swap-2026.10-v1"
+}

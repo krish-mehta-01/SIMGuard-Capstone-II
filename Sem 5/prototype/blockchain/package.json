@@ -1,0 +1,14 @@
+{
+  "name": "simguard-chain",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local Ethereum node and Solidity toolchain for the SIMGuard audit contract",
+  "scripts": {
+    "compile": "node compile.js",
+    "chain": "node node_modules/ganache/dist/node/cli.js --port 8545 --chain.chainId 1337 --wallet.deterministic --logging.quiet"
+  },
+  "devDependencies": {
+    "ganache": "7.9.2",
+    "solc": "0.8.24"
+  }
+}
